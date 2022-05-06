@@ -35,7 +35,6 @@ public class LoginController {
     @PostMapping("/v1/auth/login")
     public ResponseEntity<JwtResponse> authenticateUser(@RequestBody LoginRequest loginRequest) throws JsonProcessingException {
 
-        System.out.println(new ObjectMapper().writeValueAsString(userRepository.getUserByEmail(loginRequest.getUsername())));
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));

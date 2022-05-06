@@ -56,6 +56,8 @@ public class Question {
               .statusDesc(statusDesc)
               .responseType(responseType)
               .createdBy(createdBy)
+              .categoryTypeId(categoryId)
+              .responseTypeId(responseId)
               .build();
     };
 

@@ -1,6 +1,10 @@
 package com.tct.tctcampaign.controller;
 
+import com.tct.tctcampaign.model.db.CategoryDao;
+import com.tct.tctcampaign.model.db.ResponseTypeDao;
+import com.tct.tctcampaign.repo.CategoryRepository;
 import com.tct.tctcampaign.repo.QuestionRepository;
+import com.tct.tctcampaign.repo.ResponseTypeRepository;
 import com.tct.tctcampaign.service.QuestionService;
 import com.tct.tctcampaign.model.response.QuestionTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -19,6 +24,12 @@ public class QuestionareController {
 
     @Autowired
     QuestionRepository questionRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    ResponseTypeRepository responseTypeRepository;
 
     @GetMapping("/v1/getquestionlist")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
@@ -76,4 +87,19 @@ public class QuestionareController {
     public Object searchApprovedQuestion(@RequestParam String search){
         return questionRepository.searchApprovedQuestionByNameByQuestionName(search);
     }
+
+    @GetMapping("/v1/getAllQuestionCategory")
+    public Object getAllQuestionCategory(){
+        return categoryRepository.getAllCategory()
+                .stream()
+                .collect(Collectors.groupingBy(CategoryDao::getCategoryId,Collectors.collectingAndThen(Collectors.toList(),categoryDaos -> categoryDaos.get(0).getCategoryDesc())));
+    }
+
+    @GetMapping("/v1/getAllQuestionResponseType")
+    public Object getAllQuestionResponseType(){
+        return responseTypeRepository.getAllReponseType()
+                .stream()
+                .collect(Collectors.groupingBy(ResponseTypeDao::getResponseDesc));
+    }
+
 }

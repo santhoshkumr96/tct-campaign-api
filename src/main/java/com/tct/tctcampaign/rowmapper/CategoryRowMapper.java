@@ -1,20 +1,20 @@
 package com.tct.tctcampaign.rowmapper;
 
-import com.tct.tctcampaign.model.db.Question;
+import com.tct.tctcampaign.model.db.CategoryDao;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public class QuestionRowMapper implements RowMapper<Question> {
+public class CategoryRowMapper implements RowMapper<CategoryDao> {
     @Override
-    public Question mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Question obj = new Question();
-        if(Objects.nonNull(rs)){
-            obj.setQuestionId(rs.getInt("QUESTION_ID"));
-            obj.setQuestionName(rs.getString("QUESTION_NAME"));
-            obj.setQuestionDesc(rs.getString("QUESTION_DESC"));
+    public CategoryDao mapRow(ResultSet rs, int rowNum) throws SQLException {
+        CategoryDao obj = new CategoryDao();
+        if(Objects.nonNull(obj)){
+            obj.setCategoryId(rs.getInt("CATEGORY_ID"));
+            obj.setCategoryDesc(rs.getString("CATEGORY_DESC"));
             obj.setCreatedBy(rs.getString("CREATED_BY"));
             obj.setChangedBy(rs.getString("CHANGED_BY"));
             obj.setApprovedBy(rs.getString("APPROVED_BY"));
@@ -23,9 +23,7 @@ public class QuestionRowMapper implements RowMapper<Question> {
             obj.setChangedDate(rs.getDate("CHANGED_DATE"));
             obj.setApprovedDate(rs.getDate("APPROVED_DATE"));
             obj.setComments(rs.getString("COMMENTS"));
-            obj.setResponseType(rs.getString("RESPONSE_TYPE"));
-            obj.setCategoryId(rs.getInt("CATEGORY_ID"));
-            obj.setResponseId(rs.getInt("RESPONSETYPE_ID"));
+            obj.setCategoryDescTa(rs.getString("CATEGORY_DESC_TA"));
         }
         return obj;
     }

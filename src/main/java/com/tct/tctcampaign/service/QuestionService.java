@@ -86,8 +86,10 @@ public class QuestionService {
         Set<ConstraintViolation<QuestionTO>> validations = validator.validate(questionTo);
         if(validations.size() > 0)
             throw new ValidationException("please check inputs");
+        questionData.setCategoryId(questionTo.getCategoryTypeId());
         questionData.setQuestionName(questionTo.getQuestionName());
         questionData.setQuestionDesc(questionTo.getQuestionDesc());
+        questionData.setResponseId(questionTo.getResponseTypeId());
         questionData.setChangedDate(new Date());
         questionData.setResponseType(questionTo.getResponseType());
         questionData.setStatusDesc("PENDING");
@@ -124,6 +126,8 @@ public class QuestionService {
                                     questionTo.getResponseType()
 
         );
+        question.setCategoryId(questionTo.getCategoryTypeId());
+        question.setResponseId(questionTo.getResponseTypeId());
         question.setChangedBy(getUserNameFromContext());
         question.setChangedDate(new Date());
         Question savedQuestion = questionRepository.insert(question);

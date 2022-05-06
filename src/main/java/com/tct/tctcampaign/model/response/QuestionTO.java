@@ -20,8 +20,10 @@ public class QuestionTO {
     @NotBlank
     @NotNull
     private String questionDesc;
-
+    private String categoryType;
+    private Integer categoryTypeId;
     private String responseType;
+    private Integer responseTypeId;
     private String createdBy;
     private List<Response> response;
     private String comments;

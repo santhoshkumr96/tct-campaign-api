@@ -46,12 +46,11 @@ public class QuestionRepository{
     };
 
     public List<String> searchApprovedQuestionByNameByQuestionName(String question_name){
-        String query = "select QUESTION_NAME from [dbo].[TBL_M_QUESTIONS_REPO] STATUS_DESC = 'APPROVED' and " +
+        String query = "select QUESTION_NAME from [dbo].[TBL_M_QUESTIONS_REPO] where STATUS_DESC = 'APPROVED' and " +
                 "QUESTION_NAME like '%"+question_name+"%'";
         List<String> questions = jdbcTemplate.queryForList(query,String.class);
         return questions;
     };
-
 
     public List<Question> deleteByQuestionId(Integer questionId , String user){
         String query = "update [dbo].[TBL_M_QUESTIONS_REPO] set STATUS_DESC = ? , CHANGED_BY = ? , CHANGED_DATE = ? where QUESTION_ID = ?";
@@ -92,8 +91,8 @@ public class QuestionRepository{
                 PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1,question.getQuestionName());
                 ps.setString(2,question.getQuestionDesc());
-                ps.setInt(3,1);
-                ps.setInt(4,1);
+                ps.setInt(3,question.getResponseId());
+                ps.setInt(4,question.getCategoryId());
                 ps.setString(5,question.getCreatedBy());
                 ps.setString(6,question.getChangedBy());
                 ps.setString(7,question.getApprovedBy());
@@ -135,8 +134,8 @@ public class QuestionRepository{
         jdbcTemplate.update(query,
                 question.getQuestionName(),
                 question.getQuestionDesc(),
-                1,
-                1,
+                question.getResponseId(),
+                question.getCategoryId(),
                 question.getCreatedBy(),
                 question.getChangedBy(),
                 question.getApprovedBy(),
