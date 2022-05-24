@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tct.tctcampaign.model.db.Role;
 import com.tct.tctcampaign.model.db.User;
+import com.tct.tctcampaign.rowmapper.RolesRowMapper;
 import com.tct.tctcampaign.rowmapper.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -53,6 +54,11 @@ public class UserRepository {
         String sql = "select count(*) from  [dbo].[users] where [dbo].[users].ENABLED = 1 AND [dbo].[users].USERNAME = ?";
         int count = jdbcTemplate.queryForObject(sql, new Object[] { user }, Integer.class);
         return count > 0;
+    }
+
+    public List<Role> getRoles(){
+        String sql = "select * from [dbo].[roles]";
+        return jdbcTemplate.query(sql, new RolesRowMapper());
     }
 
 }

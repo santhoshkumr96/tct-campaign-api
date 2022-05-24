@@ -24,4 +24,9 @@ public class UserController {
         return userRepository.getAllUsers();
     }
 
+    @GetMapping("/v1/auth/get-roles")
+    public Object getRoles(){
+        return userRepository.getRoles();
+    }
+
 }
