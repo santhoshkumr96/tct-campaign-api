@@ -8,9 +8,13 @@ import com.tct.tctcampaign.rowmapper.RolesRowMapper;
 import com.tct.tctcampaign.rowmapper.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @Repository
@@ -59,6 +63,48 @@ public class UserRepository {
     public List<Role> getRoles(){
         String sql = "select * from [dbo].[roles]";
         return jdbcTemplate.query(sql, new RolesRowMapper());
+    }
+
+    public int insertUser(String username,String email, String password){
+        String query = "INSERT INTO users " +
+                "(email," +
+                "username, " +
+                "password, " +
+                "enabled," +
+                "created_date) " +
+                "VALUES " +
+                "(?,?,?,?,?)";
+
+        GeneratedKeyHolder holder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1,email);
+                ps.setString(2,username);
+                ps.setString(3,password);
+                ps.setInt(4,1);
+                ps.setTimestamp(5, new java.sql.Timestamp(new Date().getTime()));
+                return ps;
+            }
+        }, holder);
+        return (int) holder.getKey().longValue();
+    }
+
+    public void insertUserRoleMapping(int userId, int roleId){
+        String query = "insert into users_roles (user_id, role_id) values (?,?)";
+        GeneratedKeyHolder holder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                ps.setInt(1,userId);
+                ps.setInt(2,roleId);
+                return ps;
+            }
+        }, holder);
     }
 
 }
