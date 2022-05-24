@@ -107,4 +107,9 @@ public class UserRepository {
         }, holder);
     }
 
+    public void deleteUser(int userId){
+        String query = "update [dbo].[users]  set enabled = 0 where user_id = ?";
+        jdbcTemplate.update(query,userId);
+    }
+
 }

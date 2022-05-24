@@ -44,4 +44,10 @@ public class UserController {
         userCreationService.createUser(createUserRequest);
     }
 
+    @GetMapping("/v1/auth/delete-user")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteUser(@RequestParam int userId) {
+        userRepository.deleteUser(userId);
+    }
+
 }
