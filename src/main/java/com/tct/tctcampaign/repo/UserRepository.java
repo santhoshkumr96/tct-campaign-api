@@ -21,7 +21,7 @@ public class UserRepository {
     public User getUserByEmail(String email){
 
         String sql = "select * from  [dbo].[users] join [dbo].[users_roles]  on  [dbo].[users].USER_ID  =  [dbo].[users_roles].USER_ID join  [dbo].[roles] on  [dbo].[users_roles].ROLE_ID =  [dbo].[roles].ROLE_ID " +
-                "where [dbo].[users].USERNAME = '"+email+ "'";
+                "where [dbo].[users].ENABLED = 1 AND [dbo].[users].USERNAME = '"+email+ "'";
 
         List<User> users =  jdbcTemplate.query(sql, new UserRowMapper());
 
@@ -40,6 +40,19 @@ public class UserRepository {
         }
 
         return null;
+    }
+
+    public List<User> getAllUsers(){
+        String sql = "select * from  [dbo].[users] join [dbo].[users_roles]  on  [dbo].[users].USER_ID  =  [dbo].[users_roles].USER_ID join  [dbo].[roles] on  [dbo].[users_roles].ROLE_ID =  [dbo].[roles].ROLE_ID " +
+                "where [dbo].[users].ENABLED = 1";
+        List<User> users =  jdbcTemplate.query(sql, new UserRowMapper());
+        return users;
+    }
+
+    public Boolean checkIsUserValid(String user){
+        String sql = "select count(*) from  [dbo].[users] where [dbo].[users].ENABLED = 1 AND [dbo].[users].USERNAME = ?";
+        int count = jdbcTemplate.queryForObject(sql, new Object[] { user }, Integer.class);
+        return count > 0;
     }
 
 }
