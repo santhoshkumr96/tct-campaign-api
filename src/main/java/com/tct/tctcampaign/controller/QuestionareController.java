@@ -2,6 +2,7 @@ package com.tct.tctcampaign.controller;
 
 import com.tct.tctcampaign.model.db.CategoryDao;
 import com.tct.tctcampaign.model.db.ResponseTypeDao;
+import com.tct.tctcampaign.model.request.QuestionCategoryCreationRequest;
 import com.tct.tctcampaign.repo.CategoryRepository;
 import com.tct.tctcampaign.repo.QuestionRepository;
 import com.tct.tctcampaign.repo.ResponseTypeRepository;
@@ -93,6 +94,16 @@ public class QuestionareController {
         return categoryRepository.getAllCategory()
                 .stream()
                 .collect(Collectors.groupingBy(CategoryDao::getCategoryId,Collectors.collectingAndThen(Collectors.toList(),categoryDaos -> categoryDaos.get(0).getCategoryDesc())));
+    }
+
+    @GetMapping("/v1/getAllQuestionCategoryList")
+    public Object getAllQuestionCategoryList(){
+        return categoryRepository.getAllCategory();
+   }
+
+    @PostMapping("/v1/insertQuestionCategory")
+    public void insertQuestionCategory(@RequestBody QuestionCategoryCreationRequest obj){
+        categoryRepository.insertQuestionCategory(obj.getQuestionCategory(),obj.getUser());
     }
 
     @GetMapping("/v1/getAllQuestionResponseType")
