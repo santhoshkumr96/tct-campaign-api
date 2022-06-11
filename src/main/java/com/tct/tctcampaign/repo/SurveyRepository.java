@@ -3,11 +3,13 @@ package com.tct.tctcampaign.repo;
 import com.tct.tctcampaign.constants.Constants;
 import com.tct.tctcampaign.model.db.Survey;
 import com.tct.tctcampaign.model.request.PaginationModel;
+import com.tct.tctcampaign.model.response.SurveyAnswerTO;
 import com.tct.tctcampaign.model.response.SurveyCampaignTO;
 import com.tct.tctcampaign.model.response.SurveyPeopleTO;
 import com.tct.tctcampaign.population.PopulationPaginationModel;
 import com.tct.tctcampaign.population.QuestionnairePopulationEntity;
 import com.tct.tctcampaign.population.QuestionnairePopulationRowMapper;
+import com.tct.tctcampaign.rowmapper.SurveyAnswerRowMapper;
 import com.tct.tctcampaign.rowmapper.SurveyCampaignRowMapper;
 import com.tct.tctcampaign.rowmapper.SurveyPeopleRowMapper;
 import com.tct.tctcampaign.rowmapper.SurveyRowMapper;
@@ -163,5 +165,14 @@ public class SurveyRepository {
         String query = "select count(PERSON_ID) from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] WHERE STATUS_DESC ='"+Constants.CLOSED+"' AND SURVEY_ID = "+sId+" AND PERSON_ID = "+pId;
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     };
+
+
+    public List<SurveyAnswerTO> getSurveyAnswer(int sId){
+        String query = "select SUR.Member_Name ,QA.question_name ,SA.Answer  from [dbo].[TBL_T_SURVEY_ANSWER] SA" +
+                " JOIN [dbo].[TBL_M_QUESTIONS_REPO] QA ON SA.QUESTION_ID = QA.question_id AND SA.SURVEY_ID = " +sId+
+                " JOIN [dbo].[Survey] SUR ON SUR.ID = SA.PERSON_ID";
+        List<SurveyAnswerTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyAnswerRowMapper());
+        return surveyCampaignList;
+    }
 
 }

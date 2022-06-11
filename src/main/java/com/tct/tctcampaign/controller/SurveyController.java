@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tct.tctcampaign.model.db.Survey;
 import com.tct.tctcampaign.model.request.PaginationModel;
 import com.tct.tctcampaign.model.request.SurveyAnswerModel;
+import com.tct.tctcampaign.model.response.SurveyAnswerTO;
 import com.tct.tctcampaign.repo.SurveyRepository;
 import com.tct.tctcampaign.service.SurveyService;
 import org.apache.commons.csv.CSVFormat;
@@ -99,7 +100,56 @@ public class SurveyController {
         return false;
     }
 
+    @PostMapping("/v1/get-survey-answers")
+    public Object getSurveyAnswers(@RequestBody SurveyAnswerModel surveyAnswerModel) throws Exception {
+        List<SurveyAnswerTO> surveyAnswerTOS = surveyRepository.getSurveyAnswer(surveyAnswerModel.getSurveyId());
+        ByteArrayInputStream in = null;
 
+        final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL.MINIMAL);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
+
+            List<String> Header = Arrays.asList(
+                    "Member Name",
+                    "Question Name",
+                    "Answer"
+            );
+
+            csvPrinter.printRecord(Header);
+
+            for (SurveyAnswerTO population : surveyAnswerTOS) {
+                List<String> data = Arrays.asList(
+                        population.getMemberName(),
+                        population.getQuestionName(),
+                        population.getAnswer()
+                );
+
+                csvPrinter.printRecord(data);
+            }
+
+            csvPrinter.flush();
+            in = new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
+        }
+
+        InputStreamResource file = new InputStreamResource(in);
+
+        String csvFileName = "people.csv";
+
+        // setting HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + csvFileName);
+        // defining the custom Content-Type
+        headers.set(HttpHeaders.CONTENT_TYPE, "text/csv");
+
+        return new ResponseEntity<>(
+                file,
+                headers,
+                HttpStatus.OK
+        );
+    }
+    
     @PostMapping("/v1/survey-download")
     public ResponseEntity<Resource> getFile(@RequestBody PaginationModel paginationModel){
         List<Survey> questionnairePopulationEntities = new ArrayList<>();
