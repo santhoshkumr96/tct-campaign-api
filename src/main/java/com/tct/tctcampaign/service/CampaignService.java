@@ -136,7 +136,6 @@ public class CampaignService {
 
 
     private String getUserNameFromContext(){
-
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String username = userDetails.getUsername();

@@ -126,4 +126,9 @@ public class CampaignRepository {
         return campaignDao;
     }
 
+    public int checkIfValidCampaignId(int campaignId){
+        String query = "select count(campaign_id) from [dbo].[TBL_T_CAMPAIGN] WHERE status_desc  = 'APPROVED' and campaign_id = "+campaignId;
+        return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
+    }
+
 }

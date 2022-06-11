@@ -12,6 +12,7 @@ import com.tct.tctcampaign.population.PopulationPaginationModel;
 import com.tct.tctcampaign.population.QuestionnairePopulationEntity;
 import com.tct.tctcampaign.repo.SurveyRepository;
 import com.tct.tctcampaign.service.CampaignService;
+import com.tct.tctcampaign.service.SurveyService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
@@ -41,6 +42,9 @@ public class SurveyController {
     @Autowired
     SurveyRepository surveyRepository;
 
+    @Autowired
+    SurveyService surveyService;
+
     @GetMapping("/v1/getAllSurveyList")
     @PreAuthorize("hasRole('USER')")
     public Object getAllSurvey() throws JsonProcessingException {
@@ -67,6 +71,11 @@ public class SurveyController {
             return surveyRepository.findAllWithQuery(paginationModel);
         }
         return surveyRepository.findAllWithQueryWithClause(paginationModel);
+    }
+
+    @PostMapping("/v1/set-survey-population-campaign")
+    public void setSurveyToPopulationAssociation(@RequestBody PaginationModel paginationModel) throws Exception {
+        surveyService.setSurveyToPopulationAssociation(paginationModel);
     }
 
     @PostMapping("/v1/survey-download")

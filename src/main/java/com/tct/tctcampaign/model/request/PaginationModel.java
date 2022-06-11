@@ -13,4 +13,5 @@ public class PaginationModel {
     private Integer pageNumber;
     private String sqlCondition;
     private Integer campaignId;
+    private String surveyName;
 }

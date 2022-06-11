@@ -9,7 +9,7 @@ import javax.validation.ValidationException;
 
 @ControllerAdvice
 public class QuestionError {
-    @ExceptionHandler({ValidationException.class})
+    @ExceptionHandler({ValidationException.class, InvalidCampaignIdException.class})
     public ResponseEntity<ErrorResponse> validationFailed(Exception ex) {
         ErrorResponse apiError = new ErrorResponse(HttpStatus.NOT_ACCEPTABLE, ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
