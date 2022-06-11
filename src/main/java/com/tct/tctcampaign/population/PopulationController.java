@@ -36,12 +36,6 @@ public class PopulationController {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-//    @GetMapping("/v1/populationdata")
-//    public Object getData() throws Exception {
-//        return populationRepository.findAll()
-//                .stream().map(e -> e.toView()).collect(Collectors.toList());
-//    }
-
     @PostMapping("/v1/get-population-count")
     public Integer getCount(@RequestBody PopulationPaginationModel populationPaginationModel) throws Exception {
         if(Objects.isNull(populationPaginationModel.getSqlCondition()) ||
@@ -50,8 +44,6 @@ public class PopulationController {
         ){
             return populationRepository.countOfRecords(populationPaginationModel.getSqlCondition());
         }
-//        return jdbcTemplate.queryForObject("select count(*) from demographic_data where "+populationPaginationModel.getSqlCondition(),Integer.class);
-////        return populationRepository.countOfRecordsWithQuery(populationPaginationModel.getSqlCondition());
         return populationRepository.countOfRecordsWithQuery(populationPaginationModel.getSqlCondition());
     }
 
@@ -70,79 +62,8 @@ public class PopulationController {
         ) {
             return populationRepository.findAllWithQuery(populationPaginationModel);
         }
-//            return populationRepository.findAll(PageRequest.of(populationPaginationModel.getPageNumber(), populationPaginationModel.getNumberOfRows(), Sort.by("form_no")))
-//                    .stream().map(e -> e.toView()).collect(Collectors.toList());
-//        }
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        String query = "select * from demographic_data where " +
-//                populationPaginationModel.getSqlCondition() +
-//                " limit "+ populationPaginationModel.getNumberOfRows();
-//        if(populationPaginationModel.getPageNumber() > 0)
-//            query = query +  " offset "+ (populationPaginationModel.getPageNumber() * populationPaginationModel.getPageNumber());
-////        List<Population> populations = jdbcTemplate
-////                .queryForList("select * from demographic_data where "+populationPaginationModel.getSqlCondition(),Population.class);
-////        return populations.stream().map(e -> e.toView()).collect(Collectors.toList());
-////        return jdbcTemplate.queryForList(query);
-////                .stream()
-////                .map(e ->mapper.convertValue(e,Population.class).toView())
-////                .collect(Collectors.toList());
-//        return jdbcTemplate.query(query,new PopulationRowMapper())
-//                .stream()
-//                .map(e ->mapper.convertValue(e, com.tcthospital.campain.population.Population.class).toView())
-//                .collect(Collectors.toList());
         return populationRepository.findAllWithQueryWithClause(populationPaginationModel);
     }
-
-//    @GetMapping("/v1/populationpush")
-//    public String testApiConnection() throws Exception {
-//        InputStream serviceAccount = new FileInputStream("src/main/resources/google_service_account/tct-app-ca81f-3a9304d6e4f2.json");
-//        GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
-//        FirebaseOptions options = new FirebaseOptions.Builder()
-//                .setCredentials(credentials)
-//                .setProjectId("tct-app-ca81f")
-//                .build();
-//        FirebaseApp.initializeApp(options);
-//
-//        Firestore db = FirestoreClient.getFirestore();
-//
-//        ApiFuture<QuerySnapshot> query = db
-//                .collection("demographicData")
-////                .whereIn("Location.taluk", Arrays.asList("KATPADI"))
-////                .whereIn("Location.contactPerson", Arrays.asList("Neesam. C"))
-////                .whereArrayContains("Location.taluk", Arrays.asList("KATPADI"))
-////                .whereEqualTo("Location.taluk" , "KATPADI")
-////                .whereEqualTo("Location.taluk", "Neesam. C")
-//                .limit(1000)
-//                .get();
-//        QuerySnapshot querySnapshot = query.get();
-//        List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
-//
-//        int i =0 ;
-//        for(QueryDocumentSnapshot document: documents){
-//            com.tcthospital.campain.population.Population population = new com.tcthospital.campain.population.Population();
-//            try{
-//                population.setTaluk((String) document.get("Location.taluk"));
-//                population.setBlock((String) document.get("Location.block"));
-//                population.setFormNo(Integer.parseInt((String) document.get("Location.formNo")));
-//                population.setContactNumber((String) document.get("Location.contactNumber"));
-//                population.setContactPerson((String) document.get("Location.contactPerson"));
-//                population.setDoorNumber((String) document.get("Location.doorNumber"));
-//                population.setPanchayat((String) document.get("Location.panchayat"));
-//                i++;
-//                if(i%100 == 0){
-//                    System.out.println("100 inserted");
-//                }
-//                populationRepository.save(population);
-//            } catch (Exception e){
-//                System.out.println(e.getMessage());
-//            }
-//
-//
-//        }
-//        return "working";
-//
-//    }
 
     @PostMapping("/v1/download")
     public ResponseEntity<Resource> getFile(@RequestBody PopulationPaginationModel populationPaginationModel){
