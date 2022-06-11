@@ -50,7 +50,6 @@ public class PopulationController {
 
     @PostMapping("/v1/set-population-campaign")
     public void set(@RequestBody PopulationPaginationModel populationPaginationModel) throws Exception {
-        System.out.println(new ObjectMapper().writeValueAsString(populationPaginationModel));
         populationRepository.setCampaignId(populationPaginationModel);
     }
 

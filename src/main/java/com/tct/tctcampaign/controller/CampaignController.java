@@ -50,7 +50,6 @@ public class CampaignController {
     }
 
     @PostMapping("/v1/view-campaign")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public CampaignTO viewCampign(@RequestBody CampaignDao campaignDao) {
        return campaignService.viewCampaign(campaignDao.getCampaignId());
     }

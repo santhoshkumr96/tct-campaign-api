@@ -85,7 +85,12 @@ public class SurveyController {
 
     @PostMapping("/v1/get-survey-people-list")
     public Object getSurveyPeople(@RequestBody PaginationModel paginationModel) throws Exception {
-        return surveyRepository.getSurveyAndPeopleList(paginationModel.getSurveyId());
+        return surveyRepository.getSurveyAndPeopleList(paginationModel);
+    }
+
+    @PostMapping("/v1/get-survey-people-list-count")
+    public Object getSurveyPeopleListCount(@RequestBody PaginationModel paginationModel) throws Exception {
+        return surveyRepository.countOfRecordsForSurveyPeople(paginationModel.getSurveyId());
     }
 
     @PostMapping("/v1/survey-download")

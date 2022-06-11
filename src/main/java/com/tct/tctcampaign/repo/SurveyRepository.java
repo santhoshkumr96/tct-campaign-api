@@ -106,7 +106,6 @@ public class SurveyRepository {
                 " [dbo].[Survey] " +
                 "WHERE " +
                 paginationModel.getSqlCondition();
-        System.out.println(query);
         jdbcTemplate.execute(query);
     }
 
@@ -117,13 +116,22 @@ public class SurveyRepository {
         return surveyCampaignList;
     }
 
-    public List<SurveyPeopleTO> getSurveyAndPeopleList(Integer surveyId){
+    public List<SurveyPeopleTO> getSurveyAndPeopleList(PaginationModel paginationModel){
         String query = "select SP.PERSON_ID, SUR.Member_Name, SUR.Mobile_No , SUR.District  , SUR.Block , SP.STATUS_DESC from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] SP " +
                 "JOIN [dbo].[TBL_T_SURVEY_POPULATION_ASSOCIATION] SPA ON SP.SURVEY_ID = SPA.SURVEY_ID " +
                 "JOIN [dbo].[Survey] SUR ON  SP.PERSON_ID = SUR.ID " +
-                "WHERE SP.SURVEY_ID = "+surveyId;
+                "WHERE SP.SURVEY_ID = "+paginationModel.getSurveyId()+
+                " order by SP.ID "+
+                "OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber()+" ROWS "+
+                "FETCH NEXT "+paginationModel.getNumberOfRows()+" ROWS ONLY ";
+       
         List<SurveyPeopleTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyPeopleRowMapper());
         return surveyCampaignList;
     }
+
+    public Integer countOfRecordsForSurveyPeople(int id){
+        String query = "select count(PERSON_ID) from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] WHERE SURVEY_ID = "+id;
+        return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
+    };
 
 }
