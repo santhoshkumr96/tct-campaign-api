@@ -3,9 +3,13 @@ package com.tct.tctcampaign.repo;
 import com.tct.tctcampaign.constants.Constants;
 import com.tct.tctcampaign.model.db.Survey;
 import com.tct.tctcampaign.model.request.PaginationModel;
+import com.tct.tctcampaign.model.response.SurveyCampaignTO;
+import com.tct.tctcampaign.model.response.SurveyPeopleTO;
 import com.tct.tctcampaign.population.PopulationPaginationModel;
 import com.tct.tctcampaign.population.QuestionnairePopulationEntity;
 import com.tct.tctcampaign.population.QuestionnairePopulationRowMapper;
+import com.tct.tctcampaign.rowmapper.SurveyCampaignRowMapper;
+import com.tct.tctcampaign.rowmapper.SurveyPeopleRowMapper;
 import com.tct.tctcampaign.rowmapper.SurveyRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -93,10 +97,11 @@ public class SurveyRepository {
 
 
     public void insertToSurveyPeopleAssociation(int surveyId, PaginationModel paginationModel){
-        String query = "INSERT INTO TBL_T_SURVEY_POPULATION_PERSON (SURVEY_ID, PERSON_ID) " +
+        String query = "INSERT INTO TBL_T_SURVEY_POPULATION_PERSON (SURVEY_ID, PERSON_ID, STATUS_DESC) " +
                 "SELECT " +
                 surveyId+" as SURVEY_ID, " +
-                " ID " +
+                " ID , '" +
+                Constants.OPEN+ "' as STATUS_DESC "+
                 "FROM " +
                 " [dbo].[Survey] " +
                 "WHERE " +
@@ -105,5 +110,20 @@ public class SurveyRepository {
         jdbcTemplate.execute(query);
     }
 
+    public List<SurveyCampaignTO> getSurveyAndCampaign(){
+        String query = "select SPA.survey_id, SPA.survey_name, CAM.campaign_id , CAM.campaign_name , SPA.created_by from TBL_T_SURVEY_POPULATION_ASSOCIATION SPA " +
+                "JOIN [dbo].[TBL_T_CAMPAIGN] CAM on SPA.campaign_id = CAM.campaign_id";
+        List<SurveyCampaignTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyCampaignRowMapper());
+        return surveyCampaignList;
+    }
+
+    public List<SurveyPeopleTO> getSurveyAndPeopleList(Integer surveyId){
+        String query = "select SP.PERSON_ID, SUR.Member_Name, SUR.Mobile_No , SUR.District  , SUR.Block , SP.STATUS_DESC from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] SP " +
+                "JOIN [dbo].[TBL_T_SURVEY_POPULATION_ASSOCIATION] SPA ON SP.SURVEY_ID = SPA.SURVEY_ID " +
+                "JOIN [dbo].[Survey] SUR ON  SP.PERSON_ID = SUR.ID " +
+                "WHERE SP.SURVEY_ID = "+surveyId;
+        List<SurveyPeopleTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyPeopleRowMapper());
+        return surveyCampaignList;
+    }
 
 }

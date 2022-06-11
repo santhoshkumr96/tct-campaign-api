@@ -78,6 +78,16 @@ public class SurveyController {
         surveyService.setSurveyToPopulationAssociation(paginationModel);
     }
 
+    @GetMapping("/v1/get-survey-campaign-list")
+    public Object getSurveyCampaign() throws Exception {
+        return surveyRepository.getSurveyAndCampaign();
+    }
+
+    @PostMapping("/v1/get-survey-people-list")
+    public Object getSurveyPeople(@RequestBody PaginationModel paginationModel) throws Exception {
+        return surveyRepository.getSurveyAndPeopleList(paginationModel.getSurveyId());
+    }
+
     @PostMapping("/v1/survey-download")
     public ResponseEntity<Resource> getFile(@RequestBody PaginationModel paginationModel){
         List<Survey> questionnairePopulationEntities = new ArrayList<>();
