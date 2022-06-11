@@ -19,7 +19,7 @@ public class SurveyRepository {
     JdbcTemplate jdbcTemplate;
 
     public List<Survey> findAll(){
-        String query = "select top 10 * from [dbo].[Survey]";
+        String query = "select * from [dbo].[Survey]";
 
         List<Survey> surveyList = jdbcTemplate.query(query,new SurveyRowMapper());
         return surveyList;
@@ -37,10 +37,17 @@ public class SurveyRepository {
 
     public List<Survey> findAllWithQueryWithClause(PaginationModel paginationModel ){
         String query = "select * from [dbo].[Survey] where "+ paginationModel.getSqlCondition() + " "+
-                "order by ROW_ID "+
+                "order by ID "+
                 "OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber()+" ROWS "+
                 "FETCH NEXT "+paginationModel.getNumberOfRows()+" ROWS ONLY ";
 
+        List<Survey> surveyList = jdbcTemplate.query(query,new SurveyRowMapper());
+        return surveyList;
+    };
+
+    public List<Survey> findAllOnlyWithClauseWithoutPagination(PaginationModel paginationModel ){
+        String query = "select * from [dbo].[Survey] where "+ paginationModel.getSqlCondition() + " "+
+                "order by ID ";
         List<Survey> surveyList = jdbcTemplate.query(query,new SurveyRowMapper());
         return surveyList;
     };
