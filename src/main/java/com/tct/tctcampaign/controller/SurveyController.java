@@ -1,17 +1,10 @@
 package com.tct.tctcampaign.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tct.tctcampaign.model.db.CampaignAnswerDao;
-import com.tct.tctcampaign.model.db.CampaignDao;
 import com.tct.tctcampaign.model.db.Survey;
 import com.tct.tctcampaign.model.request.PaginationModel;
-import com.tct.tctcampaign.model.response.CampaignTO;
-import com.tct.tctcampaign.model.response.CampaignViewTO;
-import com.tct.tctcampaign.population.PopulationPaginationModel;
-import com.tct.tctcampaign.population.QuestionnairePopulationEntity;
+import com.tct.tctcampaign.model.request.SurveyAnswerModel;
 import com.tct.tctcampaign.repo.SurveyRepository;
-import com.tct.tctcampaign.service.CampaignService;
 import com.tct.tctcampaign.service.SurveyService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -92,6 +85,12 @@ public class SurveyController {
     public Object getSurveyPeopleListCount(@RequestBody PaginationModel paginationModel) throws Exception {
         return surveyRepository.countOfRecordsForSurveyPeople(paginationModel.getSurveyId());
     }
+
+    @PostMapping("/v1/set-survey-answer")
+    public void getSurveyPeopleListCount(@RequestBody SurveyAnswerModel surveyAnswerModel) throws Exception {
+        surveyService.setSurveyAnswer(surveyAnswerModel);
+    }
+
 
     @PostMapping("/v1/survey-download")
     public ResponseEntity<Resource> getFile(@RequestBody PaginationModel paginationModel){

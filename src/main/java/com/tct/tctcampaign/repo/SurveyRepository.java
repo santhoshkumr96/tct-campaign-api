@@ -124,7 +124,7 @@ public class SurveyRepository {
                 " order by SP.ID "+
                 "OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber()+" ROWS "+
                 "FETCH NEXT "+paginationModel.getNumberOfRows()+" ROWS ONLY ";
-       
+
         List<SurveyPeopleTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyPeopleRowMapper());
         return surveyCampaignList;
     }
@@ -133,5 +133,30 @@ public class SurveyRepository {
         String query = "select count(PERSON_ID) from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] WHERE SURVEY_ID = "+id;
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     };
+
+
+    public void insertNewSurveyAnswer(int sId, int pId, int qId, String anwer){
+        String query = "INSERT INTO [dbo].[TBL_T_SURVEY_ANSWER] (SURVEY_ID, PERSON_ID, QUESTION_ID, ANSWER) VALUES (?,?,?,?)";
+
+        GeneratedKeyHolder holder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                ps.setInt(1,sId);
+                ps.setInt(2,pId);
+                ps.setInt(3,qId);
+                ps.setString(4,anwer);
+             return ps;
+            }
+        }, holder);
+    };
+
+
+    public void updateSurveyPersonTableToClosed(int sId, int pId){
+       String query = "UPDATE [dbo].[TBL_T_SURVEY_POPULATION_PERSON] SET STATUS_DESC = '"+Constants.CLOSED+"' WHERE SURVEY_ID = "+sId+" AND PERSON_ID = "+pId;
+       jdbcTemplate.execute(query);
+    }
 
 }
