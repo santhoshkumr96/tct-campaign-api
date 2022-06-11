@@ -159,4 +159,9 @@ public class SurveyRepository {
        jdbcTemplate.execute(query);
     }
 
+    public Integer checkIfSurveyClosed(int sId, int pId){
+        String query = "select count(PERSON_ID) from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] WHERE STATUS_DESC ='"+Constants.CLOSED+"' AND SURVEY_ID = "+sId+" AND PERSON_ID = "+pId;
+        return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
+    };
+
 }

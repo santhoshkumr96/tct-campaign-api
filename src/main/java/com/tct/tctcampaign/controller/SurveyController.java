@@ -91,6 +91,14 @@ public class SurveyController {
         surveyService.setSurveyAnswer(surveyAnswerModel);
     }
 
+    @PostMapping("/v1/check-if-survey-closed")
+    public Boolean checkIfSurveyIsClosed(@RequestBody SurveyAnswerModel surveyAnswerModel) throws Exception {
+        if(surveyRepository.checkIfSurveyClosed(surveyAnswerModel.getSurveyId(),surveyAnswerModel.getPersonId()) > 0 ){
+            return true;
+        }
+        return false;
+    }
+
 
     @PostMapping("/v1/survey-download")
     public ResponseEntity<Resource> getFile(@RequestBody PaginationModel paginationModel){
