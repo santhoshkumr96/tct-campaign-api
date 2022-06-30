@@ -149,7 +149,7 @@ public class SurveyController {
                 HttpStatus.OK
         );
     }
-    
+
     @PostMapping("/v1/survey-download")
     public ResponseEntity<Resource> getFile(@RequestBody PaginationModel paginationModel){
         List<Survey> questionnairePopulationEntities = new ArrayList<>();

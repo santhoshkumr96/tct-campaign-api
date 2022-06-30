@@ -15,6 +15,7 @@ public class CampainQuestionDaoRowMapper implements RowMapper<CampainQuestionDao
             obj.setSectionId(rs.getInt("SECTION_ID"));
             obj.setQuestionId(rs.getInt("QUESTION_ID"));
             obj.setCampaignId(rs.getInt("CAMPAIGN_ID"));
+            obj.setIsRequired(rs.getInt("isRequired")==1?true:false);
         }
         return obj;
     }

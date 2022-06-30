@@ -10,12 +10,13 @@ public class CampainQuestionDao {
     private Integer sectionId;
     private Integer questionId;
     private Integer campaignId;
-
+    private Boolean isRequired;
     public CampainQuestionDao(){}
-    public CampainQuestionDao(Integer sectionId , Integer questionId  , Integer campaignId){
+    public CampainQuestionDao(Integer sectionId , Integer questionId  , Integer campaignId, Boolean isRequired){
         this.questionId = questionId;
         this.sectionId = sectionId;
         this.campaignId = campaignId;
+        this.isRequired = isRequired;
     }
 
 

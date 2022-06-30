@@ -28,5 +28,5 @@ public class QuestionTO {
     private List<Response> response;
     private String comments;
     private String statusDesc;
-
+    private Boolean isRequired;
 }

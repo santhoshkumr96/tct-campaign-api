@@ -44,8 +44,9 @@ public class CampaignQuestionRepository{
                 "CREATED_DATE ,"+
                 "CHANGED_DATE ,"+
                 "APPROVED_DATE ,"+
-                "COMMENTS )  "+
-                "values (?,?,?,?,?,?,?,?,?,?,?,?) ";
+                "COMMENTS ,"+
+                "isRequired )  "+
+                "values (?,?,?,?,?,?,?,?,?,?,?,?,?) ";
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(new PreparedStatementCreator() {
@@ -64,6 +65,7 @@ public class CampaignQuestionRepository{
                 ps.setTimestamp(10,new java.sql.Timestamp(sectionDao.getChangedDate().getTime()));
                 ps.setNull(11, Types.NULL);
                 ps.setString(12,"");
+                ps.setInt(13,campainQuestionDao.getIsRequired()==true?1:0);
                 return ps;
             }
         }, holder);

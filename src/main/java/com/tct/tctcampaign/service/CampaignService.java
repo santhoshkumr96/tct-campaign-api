@@ -78,7 +78,8 @@ public class CampaignService {
                 CampainQuestionDao campainQuestionDao = new CampainQuestionDao(
                         sectionDaoResponse.getSectionId(),
                         questionTO.getQuestionId(),
-                        campaignDaoResponse.getCampaignId()
+                        campaignDaoResponse.getCampaignId(),
+                        questionTO.getIsRequired()
                 );
                 campaignQuestionRepository.save(campainQuestionDao,sectionDao);
             }
@@ -127,7 +128,8 @@ public class CampaignService {
                 CampainQuestionDao campainQuestionDao = new CampainQuestionDao(
                         sectionDaoResponse.getSectionId(),
                         questionTO.getQuestionId(),
-                        campaignDaoResponse.getCampaignId()
+                        campaignDaoResponse.getCampaignId(),
+                        questionTO.getIsRequired()
                 );
                 campaignQuestionRepository.save(campainQuestionDao,sectionDao);
             }
@@ -176,6 +178,7 @@ public class CampaignService {
                 Question question = questionRepository.findByQuestionId(campainQuestionDao.getQuestionId());
                 QuestionTO questionTO =  question.toView();
                 questionTO.setResponse(responseRepository.findByQuestionId(campainQuestionDao.getQuestionId()));
+                questionTO.setIsRequired(campainQuestionDao.getIsRequired());
                 questionTOS.add(questionTO);
             }
             sectionTO.setQuestions(questionTOS);
