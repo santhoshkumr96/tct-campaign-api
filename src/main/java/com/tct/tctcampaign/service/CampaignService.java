@@ -1,5 +1,7 @@
 package com.tct.tctcampaign.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tct.tctcampaign.model.db.*;
 import com.tct.tctcampaign.model.response.CampaignTO;
 import com.tct.tctcampaign.model.response.CampaignViewTO;
@@ -41,6 +43,9 @@ public class CampaignService {
     @Autowired
     CampaignQuestionRepository campaignQuestionRepository;
 
+    @Autowired
+    SectionConditionRepository sectionConditionRepository;
+
     public void createCampaign(CampaignTO campaignDetails){
         //saving campaign
         CampaignDao campaignDao = new CampaignDao(
@@ -73,6 +78,20 @@ public class CampaignService {
             sectionDao.setChangedDate(new Date());
             SectionDao sectionDaoResponse = sectionRepository.save(sectionDao);
 
+            //save section condition
+            if (Objects.nonNull(sectionTO.getSectionCondition())){
+                for (Map.Entry<Integer, Map<Integer,String>> pair : sectionTO.getSectionCondition().entrySet()) {
+                    for (Map.Entry<Integer,String> basePair :  pair.getValue().entrySet()) {
+                        sectionConditionRepository.save(campaignDao.getCampaignId(),
+                                sectionDao.getSectionId(),
+                                pair.getKey(),
+                                basePair.getKey(),
+                                basePair.getValue()
+                        );
+                    }
+                }
+            }
+
             //saving the questions in section
             for(QuestionTO questionTO : sectionTO.getQuestions()){
                 CampainQuestionDao campainQuestionDao = new CampainQuestionDao(
@@ -90,7 +109,7 @@ public class CampaignService {
 
         campaignQuestionRepository.deleteByCampaignId(campaignDetails.getCampaignId(),getUserNameFromContext());
         sectionRepository.deleteByCampaignId(campaignDetails.getCampaignId(),getUserNameFromContext());
-
+        sectionConditionRepository.deleteByCampaignId(campaignDetails.getCampaignId(),getUserNameFromContext());
         //saving campaign
         CampaignDao campaignDao = new CampaignDao(
                 campaignDetails.getCampaignName(),
@@ -122,6 +141,21 @@ public class CampaignService {
             sectionDao.setChangedBy(getUserNameFromContext());
             sectionDao.setChangedDate(new Date());
             SectionDao sectionDaoResponse = sectionRepository.save(sectionDao);
+
+
+            //save section condition
+            if (Objects.nonNull(sectionTO.getSectionCondition())){
+                for (Map.Entry<Integer, Map<Integer,String>> pair : sectionTO.getSectionCondition().entrySet()) {
+                    for (Map.Entry<Integer,String> basePair :  pair.getValue().entrySet()) {
+                        sectionConditionRepository.save(campaignDao.getCampaignId(),
+                                sectionDao.getSectionId(),
+                                pair.getKey(),
+                                basePair.getKey(),
+                                basePair.getValue()
+                        );
+                    }
+                }
+            }
 
             //saving the questions in section
             for(QuestionTO questionTO : sectionTO.getQuestions()){
@@ -182,6 +216,21 @@ public class CampaignService {
                 questionTOS.add(questionTO);
             }
             sectionTO.setQuestions(questionTOS);
+
+            //section conditions
+            Map<Integer, Map<Integer,String>> sectionConditionMap = new HashMap<>();
+            for(SectionConditionDao sectionConditionDao : sectionConditionRepository.getByCampaignIdAndSectionId(campaignId,sectionTO.getSectionId())){
+                if (sectionConditionMap.containsKey(sectionConditionDao.getQuestionId())){
+                    Map<Integer, String> temp = sectionConditionMap.get(sectionConditionDao.getQuestionId());
+                    temp.put(sectionConditionDao.getResponseId(), sectionConditionDao.getSectionNameToGo());
+                } else {
+                    Map<Integer, String> temp = new HashMap<>();
+                    temp.put(sectionConditionDao.getResponseId(), sectionConditionDao.getSectionNameToGo());
+                    sectionConditionMap.put(sectionConditionDao.getQuestionId(),temp);
+                }
+            }
+
+            sectionTO.setSectionCondition(sectionConditionMap);
             sectionTOS.add(sectionTO);
         }
         campaign.setSections(sectionTOS);
