@@ -25,6 +25,7 @@ public class SectionDao {
     private Date changedDate;
     private Date approvedDate;
     private String statusDesc;
+    private String afterSection;
 
     public SectionDao(){}
 

@@ -21,6 +21,7 @@ public class SectinDaoRowMapper implements RowMapper<SectionDao> {
             obj.setCreatedDate(rs.getDate("CREATED_DATE"));
             obj.setChangedDate(rs.getDate("CHANGED_DATE"));
             obj.setApprovedDate(rs.getDate("APPROVED_DATE"));
+            obj.setAfterSection(rs.getString("AFTER_SECTION"));
         }
         return obj;
     }

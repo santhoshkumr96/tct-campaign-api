@@ -44,8 +44,9 @@ public class SectionRepository {
         "CHANGED_DATE ,"+
         "APPROVED_DATE ,"+
         "COMMENTS ,"+
+        "AFTER_SECTION ,"+
         "SECTION_NAME_TA ) "+
-        "values (?,?,?,?,?,?,?,?,?,?,?)";
+        "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
 
@@ -63,7 +64,8 @@ public class SectionRepository {
                 ps.setTimestamp(8,new java.sql.Timestamp(sectionDao.getChangedDate().getTime()));
                 ps.setNull(9, Types.NULL);
                 ps.setString(10,"");
-                ps.setString(11,"");
+                ps.setString(11,sectionDao.getAfterSection());
+                ps.setString(12,"");
                 return ps;
             }
         }, holder);

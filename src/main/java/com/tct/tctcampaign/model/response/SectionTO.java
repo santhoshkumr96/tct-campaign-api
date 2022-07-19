@@ -12,6 +12,7 @@ import java.util.Map;
 public class SectionTO {
     private String title;
     private Integer sectionId;
+    private String afterSection;
     private List<QuestionTO> questions;
     private Map<Integer, Map<Integer,String>> sectionCondition;
 }

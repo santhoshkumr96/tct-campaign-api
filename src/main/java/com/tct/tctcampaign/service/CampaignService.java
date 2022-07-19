@@ -76,6 +76,7 @@ public class CampaignService {
                 throw new ValidationException("please check inputs");
             sectionDao.setChangedBy(getUserNameFromContext());
             sectionDao.setChangedDate(new Date());
+            sectionDao.setAfterSection(sectionTO.getAfterSection());
             SectionDao sectionDaoResponse = sectionRepository.save(sectionDao);
 
             //save section condition
@@ -140,6 +141,7 @@ public class CampaignService {
                 throw new ValidationException("please check inputs");
             sectionDao.setChangedBy(getUserNameFromContext());
             sectionDao.setChangedDate(new Date());
+            sectionDao.setAfterSection(sectionTO.getAfterSection());
             SectionDao sectionDaoResponse = sectionRepository.save(sectionDao);
 
 
@@ -205,6 +207,7 @@ public class CampaignService {
             SectionTO sectionTO = new SectionTO();
             sectionTO.setTitle(sectionDao.getSectionName());
             sectionTO.setSectionId(sectionDao.getSectionId());
+            sectionTO.setAfterSection(sectionDao.getAfterSection());
             List<CampainQuestionDao> campainQuestionDaos = campaignQuestionRepository.getBySectionId(sectionDao.getSectionId());
             Collections.sort(campainQuestionDaos, Comparator.comparing(CampainQuestionDao::getQuestionOrder));
             List<QuestionTO> questionTOS = new ArrayList<>();
