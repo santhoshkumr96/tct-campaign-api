@@ -1,6 +1,7 @@
 package com.tct.tctcampaign.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tct.tctcampaign.model.db.Survey;
 import com.tct.tctcampaign.model.request.PaginationModel;
 import com.tct.tctcampaign.model.request.SurveyAnswerModel;
@@ -23,10 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -102,28 +100,25 @@ public class SurveyController {
 
     @PostMapping("/v1/get-survey-answers")
     public Object getSurveyAnswers(@RequestBody SurveyAnswerModel surveyAnswerModel) throws Exception {
-        List<SurveyAnswerTO> surveyAnswerTOS = surveyRepository.getSurveyAnswer(surveyAnswerModel.getSurveyId());
-        ByteArrayInputStream in = null;
+        List<Map<String, Object>> surveyAnswerTOS = surveyRepository.getSurveyAnswer(surveyAnswerModel.getSurveyId());
+        ByteArrayInputStream in = new ByteArrayInputStream(new ByteArrayOutputStream().toByteArray());
 
         final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL.MINIMAL);
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
+            List<String> Header = new ArrayList<>();
+            for (String value : surveyAnswerTOS.get(0).keySet()){
+                Header.add(value);
+            }
 
-            List<String> Header = Arrays.asList(
-                    "Member Name",
-                    "Question Name",
-                    "Answer"
-            );
 
             csvPrinter.printRecord(Header);
 
-            for (SurveyAnswerTO population : surveyAnswerTOS) {
-                List<String> data = Arrays.asList(
-                        population.getMemberName(),
-                        population.getQuestionName(),
-                        population.getAnswer()
-                );
-
+            for (Map<String, Object> value : surveyAnswerTOS) {
+                List<String> data = new ArrayList<>();
+                for (String key : value.keySet()){
+                    data.add(Objects.isNull(value.get(key))? "": value.get(key).toString());
+                }
                 csvPrinter.printRecord(data);
             }
 

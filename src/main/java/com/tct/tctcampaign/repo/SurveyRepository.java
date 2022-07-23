@@ -1,18 +1,14 @@
 package com.tct.tctcampaign.repo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tct.tctcampaign.constants.Constants;
 import com.tct.tctcampaign.model.db.Survey;
 import com.tct.tctcampaign.model.request.PaginationModel;
 import com.tct.tctcampaign.model.response.SurveyAnswerTO;
 import com.tct.tctcampaign.model.response.SurveyCampaignTO;
 import com.tct.tctcampaign.model.response.SurveyPeopleTO;
-import com.tct.tctcampaign.population.PopulationPaginationModel;
-import com.tct.tctcampaign.population.QuestionnairePopulationEntity;
-import com.tct.tctcampaign.population.QuestionnairePopulationRowMapper;
-import com.tct.tctcampaign.rowmapper.SurveyAnswerRowMapper;
-import com.tct.tctcampaign.rowmapper.SurveyCampaignRowMapper;
-import com.tct.tctcampaign.rowmapper.SurveyPeopleRowMapper;
-import com.tct.tctcampaign.rowmapper.SurveyRowMapper;
+import com.tct.tctcampaign.rowmapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -22,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class SurveyRepository {
@@ -137,8 +134,8 @@ public class SurveyRepository {
     };
 
 
-    public void insertNewSurveyAnswer(int sId, int pId, int qId, String anwer){
-        String query = "INSERT INTO [dbo].[TBL_T_SURVEY_ANSWER] (SURVEY_ID, PERSON_ID, QUESTION_ID, ANSWER) VALUES (?,?,?,?)";
+    public void insertNewSurveyAnswer(int sId, int pId, int qId, String anwer, Integer uniqueEntry){
+        String query = "INSERT INTO [dbo].[TBL_T_SURVEY_ANSWER] (SURVEY_ID, PERSON_ID, QUESTION_ID, ANSWER,  CREATED_DATE, unique_entry) VALUES (?,?,?,?,?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
 
@@ -150,7 +147,9 @@ public class SurveyRepository {
                 ps.setInt(2,pId);
                 ps.setInt(3,qId);
                 ps.setString(4,anwer);
-             return ps;
+                ps.setTimestamp(5,new java.sql.Timestamp(new Date().getTime()));
+                ps.setInt(6,uniqueEntry);
+                return ps;
             }
         }, holder);
     };
@@ -167,12 +166,65 @@ public class SurveyRepository {
     };
 
 
-    public List<SurveyAnswerTO> getSurveyAnswer(int sId){
-        String query = "select SUR.Member_Name ,QA.question_name ,SA.Answer  from [dbo].[TBL_T_SURVEY_ANSWER] SA" +
+    public List<Map<String, Object>> getSurveyAnswer(int sId){
+        List<SurveyAnswerTO> questionColumnList = getQuestionsInAnswerColumn(sId);
+        String questionColumn = "";
+        for (SurveyAnswerTO surveyAnswerTO: questionColumnList){
+            questionColumn += "[" +surveyAnswerTO.getQuestionName()+"],";
+        }
+        String personColumns = "[membername],[Form_no],[District],[Taluk],[Block],[Panchayat],[Area_Code],[Village_Code],[Village],[Street_Name],[Door_No],[Respondent_Name],[Mobile_No]";
+
+
+        String queryActual ="WITH expression_name ( membername, Form_no,District,Taluk,Block,Panchayat,Area_Code,Village_Code,Village,Street_Name,Door_No,Respondent_Name,Mobile_No, questionname, answer, unique_entry )\n" +
+                "AS \n" +
+                "( \n" +
+                "\tselect SUR.Member_Name,SUR.[Form_no],SUR.[District],SUR.[Taluk],SUR.[Block],SUR.[Panchayat],SUR.[Area_Code],SUR.[Village_Code],SUR.[Village],SUR.[Street_Name],SUR.[Door_No],SUR.[Respondent_Name],SUR.[Mobile_No] ,\n" +
+                "\tQA.question_name ,SA.Answer , SA.unique_entry\n" +
+                "\tfrom [dbo].[TBL_T_SURVEY_ANSWER] SA\n" +
+                "\tJOIN [dbo].[TBL_M_QUESTIONS_REPO] QA ON SA.QUESTION_ID = QA.question_id AND SA.SURVEY_ID = "+sId+"\n" +
+                "\tJOIN [dbo].[Survey] SUR ON SUR.ID = SA.PERSON_ID\n" +
+                ")\n" +
+                "\n" +
+                "SELECT "+questionColumn+personColumns+
+                "FROM (\n" +
+                "    SELECT  * FROM expression_name\n" +
+                ") as t\n" +
+                "PIVOT (\n" +
+                "    MAX(answer) FOR questionname IN ("+removeLastCharacter(questionColumn,1)+")\n" +
+                ") as pvt";
+
+//        System.out.println(queryActual);
+
+       return jdbcTemplate.queryForList(queryActual);
+
+//        try {
+//            System.out.println(new ObjectMapper().writeValueAsString(resultSet));
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//
+//        String query = "select SUR.Member_Name ,QA.question_name ,SA.Answer  from [dbo].[TBL_T_SURVEY_ANSWER] SA" +
+//                " JOIN [dbo].[TBL_M_QUESTIONS_REPO] QA ON SA.QUESTION_ID = QA.question_id AND SA.SURVEY_ID = " +sId+
+//                " JOIN [dbo].[Survey] SUR ON SUR.ID = SA.PERSON_ID";
+//        List<SurveyAnswerTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyAnswerRowMapper());
+//        return surveyCampaignList;
+    }
+
+    private String removeLastCharacter(String str, int chars){
+        return str.substring(0, str.length() - chars);
+    }
+
+    private List<SurveyAnswerTO> getQuestionsInAnswerColumn(int sId){
+        String query = "select DISTINCT QA.question_name from [dbo].[TBL_T_SURVEY_ANSWER] SA" +
                 " JOIN [dbo].[TBL_M_QUESTIONS_REPO] QA ON SA.QUESTION_ID = QA.question_id AND SA.SURVEY_ID = " +sId+
                 " JOIN [dbo].[Survey] SUR ON SUR.ID = SA.PERSON_ID";
-        List<SurveyAnswerTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyAnswerRowMapper());
+        List<SurveyAnswerTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyQuestionColumnRowMapper());
         return surveyCampaignList;
+    }
+
+    public Integer getUniqueSurveyAnswerValue(){
+        String query = "select max(unique_entry) from [dbo].[TBL_T_SURVEY_ANSWER]";
+        return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     }
 
 }
