@@ -17,6 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,9 @@ public class SurveyController {
 
     @Autowired
     SurveyService surveyService;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @GetMapping("/v1/getAllSurveyList")
     @PreAuthorize("hasRole('USER')")
@@ -83,6 +87,7 @@ public class SurveyController {
     @PostMapping("/v1/get-survey-people-list-count")
     public Object getSurveyPeopleListCount(@RequestBody PaginationModel paginationModel) throws Exception {
         return surveyRepository.countOfRecordsForSurveyPeople(paginationModel.getSurveyId());
+//        return 10;
     }
 
     @PostMapping("/v1/set-survey-answer")
@@ -92,9 +97,9 @@ public class SurveyController {
 
     @PostMapping("/v1/check-if-survey-closed")
     public Boolean checkIfSurveyIsClosed(@RequestBody SurveyAnswerModel surveyAnswerModel) throws Exception {
-        if(surveyRepository.checkIfSurveyClosed(surveyAnswerModel.getSurveyId(),surveyAnswerModel.getPersonId()) > 0 ){
-            return true;
-        }
+//        if(surveyRepository.checkIfSurveyClosed(surveyAnswerModel.getSurveyId(),surveyAnswerModel.getPersonId()) > 0 ){
+//            return true;
+//        }
         return false;
     }
 
@@ -107,8 +112,22 @@ public class SurveyController {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
             List<String> Header = new ArrayList<>();
-            for (String value : surveyAnswerTOS.get(0).keySet()){
-                Header.add(value);
+            if(surveyAnswerTOS.size() > 0){
+                String questionName ="  select QR.question_name from tbl_t_campaign_questionnaire CQ\n" +
+                        "  join tbl_m_questions_repo QR on QR.question_id = CQ.question_id\n" +
+                        "  where CQ.campaign_id = (select campaign_id from survey_population_campaign_association where id = 470);";
+                List<String> questionId = jdbcTemplate.queryForList(questionName,String.class);
+                for(String questionNameValue : questionId){
+                    Header.add(questionNameValue);
+                }
+                int temp = 0 ;
+                for (String value : surveyAnswerTOS.get(0).keySet()){
+                    if(temp >= questionId.size()){
+                        Header.add(value);
+                    }
+                    temp = temp+1;
+                }
+
             }
 
 
@@ -167,7 +186,12 @@ public class SurveyController {
 
             List<String> Header = Arrays.asList(
                     "Id",
-                    "Member Name"
+                    "Member Name",
+                    "Village",
+                    "Panchayat",
+                    "Age",
+                    "Mobile Number",
+                    "Aadhaar Number"
             );
 
             csvPrinter.printRecord(Header);
@@ -175,7 +199,12 @@ public class SurveyController {
             for (Survey population : questionnairePopulationEntities) {
                 List<String> data = Arrays.asList(
                         String.valueOf(population.getId()),
-                        population.getMemberName()
+                        population.getName(),
+                        population.getVillageName(),
+                        population.getPanchayatCode(),
+                        population.getMemberAge()+"",
+                        population.getMobileNumber(),
+                        population.getAadhaarNumber()
                 );
 
                 csvPrinter.printRecord(data);

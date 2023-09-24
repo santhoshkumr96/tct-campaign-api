@@ -6,10 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SurveyPeopleTO {
-    public Integer personId;
+    public String personId;
     public String memberName;
     public String mobileNo;
-    public String district;
-    public String block;
+    public String villageName;
+    public String panchayatCode;
     public String statusDesc;
 }

@@ -14,5 +14,5 @@ public class SurveyAnswerModel {
     private Map<Integer, String> data;
     private Integer surveyId;
     private String user;
-    private Integer personId;
+    private String personId;
 }

@@ -17,13 +17,13 @@ public class CategoryRepository {
     JdbcTemplate jdbcTemplate;
 
     public List<CategoryDao> getAllCategory(){
-        String query = "select * from [dbo].[TBL_M_QUESTION_CATEGORY]";
+        String query = "select * from tbl_m_question_category";
         return jdbcTemplate.query(query, new CategoryRowMapper());
     }
 
     public void insertQuestionCategory(String questionCategory, String user){
-        String query = "insert into TBL_M_QUESTION_CATEGORY " +
-                "(CATEGORY_DESC,created_by)" +
+        String query = "insert into tbl_m_question_category " +
+                "(category_desc,created_by)" +
                 " values (?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();

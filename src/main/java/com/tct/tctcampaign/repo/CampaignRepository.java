@@ -20,15 +20,15 @@ public class CampaignRepository {
     JdbcTemplate jdbcTemplate;
 
     public List<CampaignDao> findAll() {
-        String query = "select *  from [dbo].[TBL_T_CAMPAIGN] where STATUS_DESC != 'DELETED'";
+        String query = "select *  from tbl_t_campaign where status_desc != 'DELETED'";
         List<CampaignDao>  campaignDaos = jdbcTemplate.query(query, new CampaignDaoRowMapper());
         return campaignDaos;
     }
 
 
     public CampaignDao getByCampaignId(Integer campaignId){
-        String query = "select *  from [dbo].[TBL_T_CAMPAIGN] where STATUS_DESC != 'DELETED' " +
-                "and CAMPAIGN_ID ="+campaignId+"";
+        String query = "select *  from tbl_t_campaign where status_desc != 'DELETED' " +
+                "and campaign_id ="+campaignId+"";
         List<CampaignDao>  campaignDaos = jdbcTemplate.query(query, new CampaignDaoRowMapper());
         if(campaignDaos.size() > 0){
             return  campaignDaos.get(0);
@@ -37,27 +37,27 @@ public class CampaignRepository {
     };
 
     public List<CampaignDao> deleteByCampaignId(Integer campaignId, String user){
-        String query = "update [dbo].[TBL_T_CAMPAIGN] set STATUS_DESC = ? , CHANGED_BY = ? , CHANGED_DATE = ? where CAMPAIGN_ID = ?";
+        String query = "update tbl_t_campaign set status_desc = ? , changed_by = ? , changed_date = ? where campaign_id = ?";
         jdbcTemplate.update(query,"DELETED",user, new Date(),  campaignId);
         return findAll();
     };
 
     public CampaignDao insert(CampaignDao campaignDao) {
-        String query = "insert into [dbo].[TBL_T_CAMPAIGN](" +
-                "CAMPAIGN_NAME," +
-                "CAMPAIGN_DESC," +
-                "OBJECTIVE_ID," +
-                "CREATED_BY," +
-                "CHANGED_BY," +
-                "APPROVED_BY," +
-                "STATUS_DESC," +
-                "CREATED_DATE," +
-                "CHANGED_DATE," +
-                "APPROVED_DATE," +
-                "COMMENTS," +
-                "CAMPAIGN_NAME_TA," +
-                "CAMPAIGN_DESC_TA," +
-                "CAMPAIGN_OBJECTIVE) "+
+        String query = "insert into tbl_t_campaign (" +
+                "campaign_name," +
+                "campaign_desc," +
+                "objective_id," +
+                "created_by," +
+                "changed_by," +
+                "approved_by," +
+                "status_desc," +
+                "created_date," +
+                "changed_date," +
+                "approved_date," +
+                "comments," +
+                "campaign_name_ta," +
+                "campaign_desc_ta," +
+                "campaign_objective) "+
                 "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
@@ -90,22 +90,22 @@ public class CampaignRepository {
     }
 
     public CampaignDao update(CampaignDao campaignDao) {
-        String query = "update  [dbo].[TBL_T_CAMPAIGN] set "+
-                "CAMPAIGN_NAME = ?,"+
-                "CAMPAIGN_DESC = ?,"+
-                "OBJECTIVE_ID = ?,"+
-                "CREATED_BY = ?,"+
-                "CHANGED_BY = ?,"+
-                "APPROVED_BY = ?,"+
-                "STATUS_DESC = ?,"+
-                "CREATED_DATE = ?,"+
-                "CHANGED_DATE = ?,"+
-                "APPROVED_DATE = ?,"+
-                "COMMENTS = ?,"+
-                "CAMPAIGN_NAME_TA = ?,"+
-                "CAMPAIGN_DESC_TA = ?,"+
-                "CAMPAIGN_OBJECTIVE = ? "+
-                "where CAMPAIGN_ID = ?";
+        String query = "update  tbl_t_campaign set "+
+                "campaign_name = ?,"+
+                "campaign_desc = ?,"+
+                "objective_id = ?,"+
+                "created_by = ?,"+
+                "changed_by = ?,"+
+                "approved_by = ?,"+
+                "status_desc = ?,"+
+                "created_date = ?,"+
+                "changed_date = ?,"+
+                "approved_date = ?,"+
+                "comments = ?,"+
+                "campaign_name_ta = ?,"+
+                "campaign_desc_ta = ?,"+
+                "campaign_objective = ? "+
+                "where campaign_id = ?";
         jdbcTemplate.update(query,
                 campaignDao.getCampaignName(),
                 campaignDao.getCampaignDesc(),
@@ -127,7 +127,7 @@ public class CampaignRepository {
     }
 
     public int checkIfValidCampaignId(int campaignId){
-        String query = "select count(campaign_id) from [dbo].[TBL_T_CAMPAIGN] WHERE status_desc  = 'APPROVED' and campaign_id = "+campaignId;
+        String query = "select count(campaign_id) from tbl_t_campaign WHERE status_desc  = 'APPROVED' and campaign_id = "+campaignId;
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     }
 

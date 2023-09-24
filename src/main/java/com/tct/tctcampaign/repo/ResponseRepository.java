@@ -15,13 +15,13 @@ public class ResponseRepository {
     JdbcTemplate jdbcTemplate;
 
     public List<Response> deleteByQuestionId(Integer questionId, String user){
-        String query = "update [dbo].[TBL_M_RESPONSE_DETAILS] set STATUS_DESC = ? , CHANGED_BY = ? , CHANGED_DATE = ? where QUESTION_ID = ?";
+        String query = "update tbl_m_response_details set status_desc = ? , changed_by = ? , changed_date = ? where question_id = ?";
         jdbcTemplate.update(query,"DELETED",user, new Date(),  questionId);
         return null;
     };
 
     public List<Response> findByQuestionId(Integer questionId){
-        String query = "select * from [dbo].[TBL_M_RESPONSE_DETAILS] where STATUS_DESC != 'DELETED' and QUESTION_ID = "+questionId;
+        String query = "select * from tbl_m_response_details where status_desc != 'DELETED' and question_id = "+questionId;
         List<Response> responses = jdbcTemplate.query(query, new ResponseRowMapper());
         return responses;
     };
@@ -31,19 +31,19 @@ public class ResponseRepository {
     }
 
     public void insert(Response responseToStore) {
-        String query = "insert into [dbo].[TBL_M_RESPONSE_DETAILS](" +
-                "RESPONSE_NAME," +
-                "RESPONSE_DESC," +
-                "QUESTION_ID," +
-                "CREATED_BY," +
-                "CHANGED_BY," +
-                "APPROVED_BY," +
-                "STATUS_DESC," +
-                "CREATED_DATE," +
-                "CHANGED_DATE," +
-                "APPROVED_DATE," +
-                "COMMENTS," +
-                "RESPONSE_DESC_TA )" +
+        String query = "insert into tbl_m_response_details (" +
+                "response_name," +
+                "response_desc," +
+                "question_id," +
+                "created_by," +
+                "changed_by," +
+                "approved_by," +
+                "status_desc," +
+                "created_date," +
+                "changed_date," +
+                "approved_date," +
+                "comments," +
+                "response_desc_ta )" +
                 "values (?,?,?,?,?,?,?,?,?,?,?,?)";
         jdbcTemplate.update(query,
                 responseToStore.getResponseName(),

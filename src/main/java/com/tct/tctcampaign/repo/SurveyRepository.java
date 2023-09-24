@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tct.tctcampaign.constants.Constants;
 import com.tct.tctcampaign.model.db.Survey;
+import com.tct.tctcampaign.model.db.SurveyPopulationCampaignAssociation;
+import com.tct.tctcampaign.model.db.SurveyView;
 import com.tct.tctcampaign.model.request.PaginationModel;
 import com.tct.tctcampaign.model.response.SurveyAnswerTO;
 import com.tct.tctcampaign.model.response.SurveyCampaignTO;
@@ -19,6 +21,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class SurveyRepository {
@@ -26,47 +29,53 @@ public class SurveyRepository {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    SurveyPopulationCampaignAssociationRepo surveyPopulationCampaignAssociationRepo;
+
+    private static String COLUMN_NAME = "FD.formNo,FD.projectCode,FD.locationDetails,FD.villageCode,FD.panchayatNo,FD.panchayatCode,FD.villageName,FD.[zone],FD.streetName,FD.doorNo,FD.contactPerson,FD.numberOfFamilyMembers,FD.statusOfHouse,FD.typeOfHouse,FD.toiletFacilityAtHome,FD.ownsAnyLand,FD.wetLandInAcres,FD.dryLandInAcres,FD.ownsAnyVechicles,FD.noOfVechiclesOwned,FD.twoWheeler,FD.threeWheeler,FD.fourWheeler,FD.[others],FD.ownsAnyLiveStocks,FD.hen,FD.cow,FD.pig,FD.buffalo,FD.goat,FD.othersLiveStocks,FD.livestockCount,FD.isCompleted,FD.actualMemberCount,FD.familyHeadName,MD.id,MD.name,MD.aadhaarNumber,MD.relationShip,MD.gender,MD.dateOfBirth,MD.memberAge,MD.bloodGroup,MD.physicallyChallenged,MD.physicallyChallengedReason,MD.maritalStatus,MD.educationQualification,MD.occupation,MD.annualIncome,MD.mobileNumber,MD.email,MD.smartPhone,MD.communtiy,MD.caste,MD.govtInsurance,MD.healthInsurance,MD.oldAgePension,MD.widowedPension,MD.retirementPension,MD.smoking,MD.drinking,MD.tobacco,MD.vacinattionDone,MD.firstDose,MD.secondDose,MD.patientId";
+
     public List<Survey> findAll(){
-        String query = "select * from [dbo].[Survey]";
+        String query = "select "+COLUMN_NAME+" from [demographic].[dbo].[formDetails] FD join [demographic].[dbo].[memberDetails] MD on MD.formId = FD.id where FD.is_deleted ='N' and MD.is_deleted ='N' ";
 
         List<Survey> surveyList = jdbcTemplate.query(query,new SurveyRowMapper());
         return surveyList;
     };
 
-    public List<Survey> findAllWithQuery(PaginationModel paginationModel ){
-        String query = "select * from [dbo].[Survey] "+
-                "order by ID "+
-                "OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber()+" ROWS "+
-                "FETCH NEXT "+paginationModel.getNumberOfRows()+" ROWS ONLY ";
+    public List<SurveyView> findAllWithQuery(PaginationModel paginationModel ){
+        String query = "select * from demographics.demographics_view "+
+                "LIMIT "+paginationModel.getNumberOfRows()+
+                " OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber();
 
-        List<Survey> surveyList = jdbcTemplate.query(query,new SurveyRowMapper());
+        List<SurveyView> surveyList = jdbcTemplate.query(query,new SurveyViewRowMapper());
         return surveyList;
     };
 
-    public List<Survey> findAllWithQueryWithClause(PaginationModel paginationModel ){
-        String query = "select * from [dbo].[Survey] where "+ paginationModel.getSqlCondition() + " "+
-                "order by ID "+
-                "OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber()+" ROWS "+
-                "FETCH NEXT "+paginationModel.getNumberOfRows()+" ROWS ONLY ";
+    public List<SurveyView> findAllWithQueryWithClause(PaginationModel paginationModel ){
+            String query = "select * from demographics.demographics_view where "+ paginationModel.getSqlCondition() + " "+
+                "LIMIT "+paginationModel.getNumberOfRows()+
+                " OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber();
 
-        List<Survey> surveyList = jdbcTemplate.query(query,new SurveyRowMapper());
+        System.out.println("the pagination data query ====> "+ query);
+
+        List<SurveyView> surveyList = jdbcTemplate.query(query,new SurveyViewRowMapper());
         return surveyList;
     };
 
     public List<Survey> findAllOnlyWithClauseWithoutPagination(PaginationModel paginationModel ){
-        String query = "select * from [dbo].[Survey] where "+ paginationModel.getSqlCondition() + " "+
-                "order by ID ";
+        String query = "select "+COLUMN_NAME+" from [demographic].[dbo].[formDetails] FD join [demographic].[dbo].[memberDetails] MD on MD.formId = FD.id where FD.is_deleted ='N' and MD.is_deleted ='N' and "+ paginationModel.getSqlCondition() + " "+
+                "order by MD.id ";
         List<Survey> surveyList = jdbcTemplate.query(query,new SurveyRowMapper());
         return surveyList;
     };
 
     public Integer countOfRecordsWithQuery(String clause){
-        String query = "select count(ID) from [dbo].[Survey] where "+ clause;
+        String query = "select count(*) from demographics.demographics_view where "+ clause;
+        System.out.println("the count query ====> "+ query);
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     };
 
     public Integer countOfRecords(){
-        String query = "select count(ID) from [dbo].[Survey]";
+        String query = "select count(*) from demographics.demographics_view";
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     };
 
@@ -91,7 +100,7 @@ public class SurveyRepository {
             }
         }, holder);
 
-       return (int) holder.getKey().longValue();
+        return (int) holder.getKey().longValue();
     };
 
 
@@ -99,43 +108,50 @@ public class SurveyRepository {
         String query = "INSERT INTO TBL_T_SURVEY_POPULATION_PERSON (SURVEY_ID, PERSON_ID, STATUS_DESC) " +
                 "SELECT " +
                 surveyId+" as SURVEY_ID, " +
-                " ID , '" +
+                " MD.id , '" +
                 Constants.OPEN+ "' as STATUS_DESC "+
                 "FROM " +
-                " [dbo].[Survey] " +
-                "WHERE " +
+                "[demographic].[dbo].[formDetails] FD join [demographic].[dbo].[memberDetails] MD on MD.formId = FD.id where FD.is_deleted ='N' and MD.is_deleted ='N' and " +
                 paginationModel.getSqlCondition();
         jdbcTemplate.execute(query);
     }
 
     public List<SurveyCampaignTO> getSurveyAndCampaign(){
-        String query = "select SPA.survey_id, SPA.survey_name, CAM.campaign_id , CAM.campaign_name , SPA.created_by from TBL_T_SURVEY_POPULATION_ASSOCIATION SPA " +
-                "JOIN [dbo].[TBL_T_CAMPAIGN] CAM on SPA.campaign_id = CAM.campaign_id";
+        String query = "select SPA.id as 'survey_id', SPA.survey_name, CAM.campaign_id , CAM.campaign_name , SPA.created_by  " +
+                "from survey_population_campaign_association SPA " +
+                "join tbl_t_campaign CAM on SPA.campaign_id = CAM.campaign_id";
         List<SurveyCampaignTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyCampaignRowMapper());
         return surveyCampaignList;
     }
 
     public List<SurveyPeopleTO> getSurveyAndPeopleList(PaginationModel paginationModel){
-        String query = "select SP.PERSON_ID, SUR.Member_Name, SUR.Mobile_No , SUR.District  , SUR.Block , SP.STATUS_DESC from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] SP " +
-                "JOIN [dbo].[TBL_T_SURVEY_POPULATION_ASSOCIATION] SPA ON SP.SURVEY_ID = SPA.SURVEY_ID " +
-                "JOIN [dbo].[Survey] SUR ON  SP.PERSON_ID = SUR.ID " +
-                "WHERE SP.SURVEY_ID = "+paginationModel.getSurveyId()+
-                " order by SP.ID "+
-                "OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber()+" ROWS "+
-                "FETCH NEXT "+paginationModel.getNumberOfRows()+" ROWS ONLY ";
+        Long surveyId = new Long(paginationModel.getSurveyId());
+        Optional<SurveyPopulationCampaignAssociation> clause = surveyPopulationCampaignAssociationRepo.findById(surveyId);
+        String clauseString  = clause.get().getClause();
+
+        System.out.println("the clauseString ====> "+ clauseString);
+
+        String query = "select member_id as 'person_id', member_name,mobile_number,village_name,village_code as 'panchayatCode' from demographics.demographics_view where "+ clauseString + " " +
+                "LIMIT "+paginationModel.getNumberOfRows()+
+                " OFFSET "+paginationModel.getNumberOfRows()*paginationModel.getPageNumber();
+
+        System.out.println("the claus equery ====> "+ query);
 
         List<SurveyPeopleTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyPeopleRowMapper());
         return surveyCampaignList;
     }
 
     public Integer countOfRecordsForSurveyPeople(int id){
-        String query = "select count(PERSON_ID) from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] WHERE SURVEY_ID = "+id;
+        Long surveyId = new Long(id);
+        Optional<SurveyPopulationCampaignAssociation> clause = surveyPopulationCampaignAssociationRepo.findById(surveyId);
+        String clauseString  = clause.get().getClause();
+        String query = "select count(*) from demographics.demographics_view where "+ clauseString ;
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     };
 
 
-    public void insertNewSurveyAnswer(int sId, int pId, int qId, String anwer, Integer uniqueEntry){
-        String query = "INSERT INTO [dbo].[TBL_T_SURVEY_ANSWER] (SURVEY_ID, PERSON_ID, QUESTION_ID, ANSWER,  CREATED_DATE, unique_entry) VALUES (?,?,?,?,?,?)";
+    public void insertNewSurveyAnswer(int sId, String pId, int qId, String anwer, Integer uniqueEntry){
+        String query = "insert into tbl_t_survey_answer (survey_id, person_id, question_id, answer, unique_entry) values (?,?,?,?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
 
@@ -144,70 +160,39 @@ public class SurveyRepository {
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 ps.setInt(1,sId);
-                ps.setInt(2,pId);
+                ps.setString(2,pId);
                 ps.setInt(3,qId);
                 ps.setString(4,anwer);
-                ps.setTimestamp(5,new java.sql.Timestamp(new Date().getTime()));
-                ps.setInt(6,uniqueEntry);
+                ps.setInt(5,uniqueEntry);
                 return ps;
             }
         }, holder);
     };
 
 
-    public void updateSurveyPersonTableToClosed(int sId, int pId){
-       String query = "UPDATE [dbo].[TBL_T_SURVEY_POPULATION_PERSON] SET STATUS_DESC = '"+Constants.CLOSED+"' WHERE SURVEY_ID = "+sId+" AND PERSON_ID = "+pId;
-       jdbcTemplate.execute(query);
+    public void updateSurveyPersonTableToClosed(int sId, String pId){
+        String query = "UPDATE [dbo].[TBL_T_SURVEY_POPULATION_PERSON] SET STATUS_DESC = '"+Constants.CLOSED+"' WHERE SURVEY_ID = "+sId+" AND PERSON_ID = '"+pId+"'";
+        jdbcTemplate.execute(query);
     }
 
-    public Integer checkIfSurveyClosed(int sId, int pId){
-        String query = "select count(PERSON_ID) from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] WHERE STATUS_DESC ='"+Constants.CLOSED+"' AND SURVEY_ID = "+sId+" AND PERSON_ID = "+pId;
+    public Integer checkIfSurveyClosed(int sId, String pId){
+        String query = "select count(PERSON_ID) from [dbo].[TBL_T_SURVEY_POPULATION_PERSON] WHERE STATUS_DESC ='"+Constants.CLOSED+"' AND SURVEY_ID = "+sId+" AND PERSON_ID = '"+pId+"'";
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     };
 
 
     public List<Map<String, Object>> getSurveyAnswer(int sId){
-        List<SurveyAnswerTO> questionColumnList = getQuestionsInAnswerColumn(sId);
-        String questionColumn = "";
-        for (SurveyAnswerTO surveyAnswerTO: questionColumnList){
-            questionColumn += "[" +surveyAnswerTO.getQuestionName()+"],";
+
+        String query = "select question_id from tbl_t_campaign_questionnaire where campaign_id = (select campaign_id from survey_population_campaign_association where id = "+sId+") order by question_id ";
+        List<Integer> questionId = jdbcTemplate.queryForList(query,Integer.class);
+        String pivotClause = "";
+        for(Integer qId : questionId){
+            pivotClause = pivotClause + " MAX(CASE WHEN question_id = "+qId+" THEN answer END) AS '"+qId+"',";
         }
-        String personColumns = "[membername],[Form_no],[District],[Taluk],[Block],[Panchayat],[Area_Code],[Village_Code],[Village],[Street_Name],[Door_No],[Respondent_Name],[Mobile_No]";
-
-
-        String queryActual ="WITH expression_name ( membername, Form_no,District,Taluk,Block,Panchayat,Area_Code,Village_Code,Village,Street_Name,Door_No,Respondent_Name,Mobile_No, questionname, answer, unique_entry )\n" +
-                "AS \n" +
-                "( \n" +
-                "\tselect SUR.Member_Name,SUR.[Form_no],SUR.[District],SUR.[Taluk],SUR.[Block],SUR.[Panchayat],SUR.[Area_Code],SUR.[Village_Code],SUR.[Village],SUR.[Street_Name],SUR.[Door_No],SUR.[Respondent_Name],SUR.[Mobile_No] ,\n" +
-                "\tQA.question_name ,SA.Answer , SA.unique_entry\n" +
-                "\tfrom [dbo].[TBL_T_SURVEY_ANSWER] SA\n" +
-                "\tJOIN [dbo].[TBL_M_QUESTIONS_REPO] QA ON SA.QUESTION_ID = QA.question_id AND SA.SURVEY_ID = "+sId+"\n" +
-                "\tJOIN [dbo].[Survey] SUR ON SUR.ID = SA.PERSON_ID\n" +
-                ")\n" +
-                "\n" +
-                "SELECT "+questionColumn+personColumns+
-                "FROM (\n" +
-                "    SELECT  * FROM expression_name\n" +
-                ") as t\n" +
-                "PIVOT (\n" +
-                "    MAX(answer) FOR questionname IN ("+removeLastCharacter(questionColumn,1)+")\n" +
-                ") as pvt";
-
-//        System.out.println(queryActual);
-
-       return jdbcTemplate.queryForList(queryActual);
-
-//        try {
-//            System.out.println(new ObjectMapper().writeValueAsString(resultSet));
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
-//
-//        String query = "select SUR.Member_Name ,QA.question_name ,SA.Answer  from [dbo].[TBL_T_SURVEY_ANSWER] SA" +
-//                " JOIN [dbo].[TBL_M_QUESTIONS_REPO] QA ON SA.QUESTION_ID = QA.question_id AND SA.SURVEY_ID = " +sId+
-//                " JOIN [dbo].[Survey] SUR ON SUR.ID = SA.PERSON_ID";
-//        List<SurveyAnswerTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyAnswerRowMapper());
-//        return surveyCampaignList;
+        String pivotQuery = "WITH pivot_questions AS ( "+
+                "SELECT "+pivotClause+" person_id FROM tbl_t_survey_answer  where survey_id = "+
+                sId + " group by person_id ) select * from pivot_questions PQ join demographics.demographics_view DV on DV.member_id = PQ.person_id ";
+        return jdbcTemplate.queryForList(pivotQuery);
     }
 
     private String removeLastCharacter(String str, int chars){
@@ -217,13 +202,16 @@ public class SurveyRepository {
     private List<SurveyAnswerTO> getQuestionsInAnswerColumn(int sId){
         String query = "select DISTINCT QA.question_name from [dbo].[TBL_T_SURVEY_ANSWER] SA" +
                 " JOIN [dbo].[TBL_M_QUESTIONS_REPO] QA ON SA.QUESTION_ID = QA.question_id AND SA.SURVEY_ID = " +sId+
-                " JOIN [dbo].[Survey] SUR ON SUR.ID = SA.PERSON_ID";
+                " join [demographic].[dbo].[memberDetails] MD on MD.id = SA.PERSON_ID " +
+                " JOIN [demographic].[dbo].[formDetails] FD  on MD.formId = FD.id " +
+                " WHERE FD.is_deleted ='N' and MD.is_deleted ='N'";
+//       System.out.println(query);
         List<SurveyAnswerTO> surveyCampaignList = jdbcTemplate.query(query,new SurveyQuestionColumnRowMapper());
         return surveyCampaignList;
     }
 
     public Integer getUniqueSurveyAnswerValue(){
-        String query = "select max(unique_entry) from [dbo].[TBL_T_SURVEY_ANSWER]";
+        String query = "select max(unique_entry) from tbl_t_survey_answer";
         return jdbcTemplate.queryForObject(query,new Object[]{}, Integer.class);
     }
 

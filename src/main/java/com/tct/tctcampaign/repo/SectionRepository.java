@@ -20,32 +20,32 @@ public class SectionRepository {
     JdbcTemplate jdbcTemplate;
 
     public List<SectionDao> getByCampaignId(Integer campaignId){
-        String query = "select *  from [dbo].[TBL_T_SECTION] where STATUS_DESC != 'DELETED' and CAMPAIGN_ID="+campaignId;
+        String query = "select *  from tbl_t_section where status_desc != 'DELETED' and campaign_id="+campaignId;
         List<SectionDao> sectionDaos = jdbcTemplate.query(query, new SectinDaoRowMapper());
         return sectionDaos;
     };
 
     public List<SectionDao> deleteByCampaignId(Integer campaignId, String user){
-        String query = "update [dbo].[TBL_T_SECTION] set STATUS_DESC = ? , CHANGED_BY = ? , CHANGED_DATE = ? where CAMPAIGN_ID = ?";
+        String query = "update tbl_t_section set status_desc = ? , changed_by = ? , changed_date = ? where campaign_id = ?";
         jdbcTemplate.update(query,"DELETED",user, new Date(),  campaignId);
         return getByCampaignId(campaignId);
     };
 
 
     public SectionDao save(SectionDao sectionDao) {
-        String query = "insert into [dbo].[TBL_T_SECTION] ("+
-        "SECTION_NAME ,"+
-        "CAMPAIGN_ID ,"+
-        "CREATED_BY ,"+
-        "CHANGED_BY ,"+
-        "APPROVED_BY ,"+
-        "STATUS_DESC ,"+
-        "CREATED_DATE ,"+
-        "CHANGED_DATE ,"+
-        "APPROVED_DATE ,"+
-        "COMMENTS ,"+
-        "AFTER_SECTION ,"+
-        "SECTION_NAME_TA ) "+
+        String query = "insert into tbl_t_section ("+
+        "section_name ,"+
+        "campaign_id ,"+
+        "created_by ,"+
+        "changed_by ,"+
+        "approved_by ,"+
+        "status_desc ,"+
+        "created_date ,"+
+        "changed_date ,"+
+        "approved_date ,"+
+        "comments ,"+
+        "after_section ,"+
+        "section_name_ta ) "+
         "values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();

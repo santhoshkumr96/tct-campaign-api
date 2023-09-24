@@ -1,10 +1,13 @@
 package com.tct.tctcampaign.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tct.tctcampaign.constants.Constants;
 import com.tct.tctcampaign.errorhandler.InvalidCampaignIdException;
+import com.tct.tctcampaign.model.db.SurveyPopulationCampaignAssociation;
 import com.tct.tctcampaign.model.request.PaginationModel;
 import com.tct.tctcampaign.model.request.SurveyAnswerModel;
 import com.tct.tctcampaign.repo.CampaignRepository;
+import com.tct.tctcampaign.repo.SurveyPopulationCampaignAssociationRepo;
 import com.tct.tctcampaign.repo.SurveyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,10 +26,20 @@ public class SurveyService {
     @Autowired
     CampaignRepository campaignRepository;
 
+    @Autowired
+    SurveyPopulationCampaignAssociationRepo surveyPopulationCampaignAssociationRepo;
+
     public void setSurveyToPopulationAssociation(PaginationModel paginationModel) throws Exception{
         if(campaignRepository.checkIfValidCampaignId(paginationModel.getCampaignId()) > 0){
-            int surveyId =surveyRepository.insertNewSurveyPopulationAssociation(paginationModel,getUserNameFromContext());
-            surveyRepository.insertToSurveyPeopleAssociation(surveyId,paginationModel);
+//            int surveyId =surveyRepository.insertNewSurveyPopulationAssociation(paginationModel,getUserNameFromContext());
+//            surveyRepository.insertToSurveyPeopleAssociation(surveyId,paginationModel);
+            SurveyPopulationCampaignAssociation surveyPopulationCampaignAssociation = new SurveyPopulationCampaignAssociation();
+            surveyPopulationCampaignAssociation.setCampaignId(paginationModel.getCampaignId());
+            surveyPopulationCampaignAssociation.setSurveyName(paginationModel.getSurveyName());
+            surveyPopulationCampaignAssociation.setCreatedBy(getUserNameFromContext());
+            surveyPopulationCampaignAssociation.setClause(paginationModel.getSqlCondition());
+            surveyPopulationCampaignAssociation.setStatus(Constants.OPEN);
+            surveyPopulationCampaignAssociationRepo.save(surveyPopulationCampaignAssociation);
             return;
         }
         throw new InvalidCampaignIdException("Enter valid campaign Id");
@@ -51,6 +64,6 @@ public class SurveyService {
                     Objects.isNull(uniqueEntry)?1:(uniqueEntry+1)
             );
         }
-        surveyRepository.updateSurveyPersonTableToClosed(surveyAnswerModel.getSurveyId(),surveyAnswerModel.getPersonId());
+//        surveyRepository.updateSurveyPersonTableToClosed(surveyAnswerModel.getSurveyId(),surveyAnswerModel.getPersonId());
     }
 }

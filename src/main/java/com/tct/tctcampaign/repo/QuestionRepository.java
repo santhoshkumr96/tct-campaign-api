@@ -19,19 +19,19 @@ public class QuestionRepository{
     JdbcTemplate jdbcTemplate;
 
     public List<Question> findAll(){
-        String query = "select  * from [dbo].[TBL_M_QUESTIONS_REPO] where STATUS_DESC != 'DELETED'";
+        String query = "select  * from tbl_m_questions_repo where status_desc != 'DELETED'";
         List<Question> questions = jdbcTemplate.query(query, new QuestionRowMapper());
         return questions;
     };
 
     public List<Question> findAllApproved(){
-        String query = "select  * from [dbo].[TBL_M_QUESTIONS_REPO] where STATUS_DESC = 'APPROVED'";
+        String query = "select  * from tbl_m_questions_repo where status_desc = 'APPROVED'";
         List<Question> questions = jdbcTemplate.query(query, new QuestionRowMapper());
         return questions;
     };
 
     public Question findByQuestionId(Integer questionId){
-        String query = "select  * from [dbo].[TBL_M_QUESTIONS_REPO] where QUESTION_ID = "+questionId;;
+        String query = "select  * from tbl_m_questions_repo where question_id = "+questionId;;
         List<Question> questions = jdbcTemplate.query(query, new QuestionRowMapper());
         if(questions.size() > 0){
             return questions.get(0);
@@ -40,47 +40,47 @@ public class QuestionRepository{
     };
 
     public List<String> searchByQuestionName(String question_name){
-        String query = "select QUESTION_NAME from [dbo].[TBL_M_QUESTIONS_REPO] where STATUS_DESC != 'DELETED' and QUESTION_NAME like '%"+question_name+"%'";
+        String query = "select question_name from tbl_m_questions_repo where status_desc != 'DELETED' and question_name like '%"+question_name+"%'";
         List<String> questions = jdbcTemplate.queryForList(query,String.class);
         return questions;
     };
 
     public List<String> searchApprovedQuestionByNameByQuestionName(String question_name){
-        String query = "select QUESTION_NAME from [dbo].[TBL_M_QUESTIONS_REPO] where STATUS_DESC = 'APPROVED' and " +
-                "QUESTION_NAME like '%"+question_name+"%'";
+        String query = "select question_name from tbl_m_questions_repo where status_desc = 'APPROVED' and " +
+                "question_name like '%"+question_name+"%'";
         List<String> questions = jdbcTemplate.queryForList(query,String.class);
         return questions;
     };
 
     public List<Question> deleteByQuestionId(Integer questionId , String user){
-        String query = "update [dbo].[TBL_M_QUESTIONS_REPO] set STATUS_DESC = ? , CHANGED_BY = ? , CHANGED_DATE = ? where QUESTION_ID = ?";
+        String query = "update tbl_m_questions_repo set status_desc = ? , changed_by = ? , changed_date = ? where question_id = ?";
         jdbcTemplate.update(query,"DELETED",user, new Date(),  questionId);
         return findAll();
     };
 
     public List<Question> searchByQuestionNameWhole(String question_name){
-        String query = "select * from [dbo].[TBL_M_QUESTIONS_REPO] where QUESTION_NAME = '"+question_name+"'";
+        String query = "select * from tbl_m_questions_repo where question_name = '"+question_name+"'";
         List<Question> questions = jdbcTemplate.query(query,new QuestionRowMapper());
         return questions;
     };
 
     public Question insert(Question question) {
-        String query = "insert into   [dbo].[TBL_M_QUESTIONS_REPO](" +
-                "QUESTION_NAME," +
-                "QUESTION_DESC," +
-                "RESPONSETYPE_ID," +
-                "CATEGORY_ID," +
-                "CREATED_BY," +
-                "CHANGED_BY," +
-                "APPROVED_BY," +
-                "STATUS_DESC," +
-                "CREATED_DATE," +
-                "CHANGED_DATE," +
-                "APPROVED_DATE," +
-                "COMMENTS," +
-                "QUESTION_NAME_TA," +
-                "QUESTION_DESC_TA," +
-                "RESPONSE_TYPE ) " +
+        String query = "insert into tbl_m_questions_repo (" +
+                "question_name," +
+                "question_desc," +
+                "responsetype_id," +
+                "category_id," +
+                "created_by," +
+                "changed_by," +
+                "approved_by," +
+                "status_desc," +
+                "created_date," +
+                "changed_date," +
+                "approved_date," +
+                "comments," +
+                "question_name_ta," +
+                "question_desc_ta," +
+                "response_type ) " +
                 "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
@@ -114,23 +114,23 @@ public class QuestionRepository{
     };
 
     public Question save(Question question) {
-        String query = "update [dbo].[TBL_M_QUESTIONS_REPO] set " +
-                "QUESTION_NAME = ?," +
-                "QUESTION_DESC = ?," +
-                "RESPONSETYPE_ID = ?," +
-                "CATEGORY_ID = ?," +
-                "CREATED_BY = ?," +
-                "CHANGED_BY = ?," +
-                "APPROVED_BY = ?," +
-                "STATUS_DESC = ?," +
-                "CREATED_DATE = ?," +
-                "CHANGED_DATE = ?," +
-                "APPROVED_DATE = ?," +
-                "COMMENTS = ?," +
-                "QUESTION_NAME_TA = ?," +
-                "QUESTION_DESC_TA = ?," +
-                "RESPONSE_TYPE = ? " +
-                "where QUESTION_ID = ?";
+        String query = "update tbl_m_questions_repo set " +
+                "question_name = ?," +
+                "question_desc = ?," +
+                "responsetype_id = ?," +
+                "category_id = ?," +
+                "created_by = ?," +
+                "changed_by = ?," +
+                "approved_by = ?," +
+                "status_desc = ?," +
+                "created_date = ?," +
+                "changed_date = ?," +
+                "approved_date = ?," +
+                "comments = ?," +
+                "question_name_ta = ?," +
+                "question_desc_ta = ?," +
+                "response_type = ? " +
+                "where question_id = ?";
         jdbcTemplate.update(query,
                 question.getQuestionName(),
                 question.getQuestionDesc(),

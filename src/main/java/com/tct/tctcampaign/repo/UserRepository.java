@@ -25,8 +25,8 @@ public class UserRepository {
 
     public User getUserByEmail(String email){
 
-        String sql = "select * from  [dbo].[users] join [dbo].[users_roles]  on  [dbo].[users].USER_ID  =  [dbo].[users_roles].USER_ID join  [dbo].[roles] on  [dbo].[users_roles].ROLE_ID =  [dbo].[roles].ROLE_ID " +
-                "where [dbo].[users].ENABLED = 1 AND [dbo].[users].USERNAME = '"+email+ "'";
+        String sql = "select * from  tbl_m_users join tbl_m_users_roles  on  tbl_m_users.user_id  =  tbl_m_users_roles.user_id join  tbl_m_roles on  tbl_m_users_roles.role_id =  tbl_m_roles.role_id " +
+                "where tbl_m_users.enabled = 1 and tbl_m_users.username = '"+email+ "'";;
 
         List<User> users =  jdbcTemplate.query(sql, new UserRowMapper());
 
@@ -48,30 +48,30 @@ public class UserRepository {
     }
 
     public List<User> getAllUsers(){
-        String sql = "select * from  [dbo].[users] join [dbo].[users_roles]  on  [dbo].[users].USER_ID  =  [dbo].[users_roles].USER_ID join  [dbo].[roles] on  [dbo].[users_roles].ROLE_ID =  [dbo].[roles].ROLE_ID " +
-                "where [dbo].[users].ENABLED = 1";
+        String sql = "select * from  tbl_m_users join tbl_m_users_roles  on  tbl_m_users.USER_ID  =  tbl_m_users_roles.USER_ID join  tbl_m_roles on  tbl_m_users_roles.ROLE_ID =  tbl_m_roles.ROLE_ID " +
+                "where tbl_m_users.ENABLED = 1";
         List<User> users =  jdbcTemplate.query(sql, new UserRowMapper());
         return users;
     }
 
     public Boolean checkIsUserValid(String user){
-        String sql = "select count(*) from  [dbo].[users] where [dbo].[users].ENABLED = 1 AND [dbo].[users].USERNAME = ?";
+        String sql = "select count(*) from  tbl_m_users where tbl_m_users.ENABLED = 1 AND tbl_m_users.USERNAME = ?";
         int count = jdbcTemplate.queryForObject(sql, new Object[] { user }, Integer.class);
         return count > 0;
     }
 
     public List<Role> getRoles(){
-        String sql = "select * from [dbo].[roles]";
+        String sql = "select * from tbl_m_roles";
         return jdbcTemplate.query(sql, new RolesRowMapper());
     }
 
     public int insertUser(String username,String email, String password){
-        String query = "INSERT INTO users " +
+        String query = "INSERT INTO tbl_m_users " +
                 "(email," +
                 "username, " +
                 "password, " +
                 "enabled," +
-                "created_date) " +
+                "created_at) " +
                 "VALUES " +
                 "(?,?,?,?,?)";
 
@@ -93,7 +93,7 @@ public class UserRepository {
     }
 
     public void insertUserRoleMapping(int userId, int roleId){
-        String query = "insert into users_roles (user_id, role_id) values (?,?)";
+        String query = "insert into tbl_m_users_roles (user_id, role_id) values (?,?)";
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(new PreparedStatementCreator() {
@@ -108,7 +108,7 @@ public class UserRepository {
     }
 
     public void deleteUser(int userId){
-        String query = "update [dbo].[users]  set enabled = 0 where user_id = ?";
+        String query = "update tbl_m_users  set enabled = 0 where user_id = ?";
         jdbcTemplate.update(query,userId);
     }
 

@@ -15,7 +15,7 @@ public class ResponseTypeRepository {
     JdbcTemplate jdbcTemplate;
 
     public List<ResponseTypeDao> getAllReponseType(){
-        String query = "select * from [dbo].[TBL_M_RESPONSE_TYPE]";
+        String query = "select * from tbl_m_response_type";
         return jdbcTemplate.query(query, new ResponseTypeRowMapper());
     }
 }

@@ -21,31 +21,31 @@ public class CampaignQuestionRepository{
     JdbcTemplate jdbcTemplate;
 
     public void  deleteByCampaignId(Integer campaignId ,String user){
-        String query = "update [TBL_T_CAMPAIGN_QUESTIONNAIRE] set STATUS_DESC = ? , CHANGED_BY = ? , CHANGED_DATE = ? where CAMPAIGN_ID = ?";
+        String query = "update tbl_t_campaign_questionnaire set status_desc = ? , changed_by = ? , changed_date = ? where campaign_id = ?";
         jdbcTemplate.update(query,"DELETED",user, new Date(),  campaignId);
     };
 
     public List<CampainQuestionDao> getBySectionId(Integer sectionId){
-        String query = "select  * from [dbo].[TBL_T_CAMPAIGN_QUESTIONNAIRE] where SECTION_ID = "+sectionId+"";
+        String query = "select  * from tbl_t_campaign_questionnaire where section_id = "+sectionId+"";
         List<CampainQuestionDao> campainQuestionDaos = jdbcTemplate.query(query, new CampainQuestionDaoRowMapper());
         return campainQuestionDaos;
     };
 
     public void save(CampainQuestionDao campainQuestionDao, SectionDao sectionDao) {
-        String query = "insert into [dbo].[TBL_T_CAMPAIGN_QUESTIONNAIRE] ( "+
-                "OBJECTIVE_ID ,"+
-                "CAMPAIGN_ID ,"+
-                "SECTION_ID ,"+
-                "QUESTION_ID ,"+
-                "CREATED_BY ,"+
-                "CHANGED_BY ,"+
-                "APPROVED_BY ,"+
-                "STATUS_DESC ,"+
-                "CREATED_DATE ,"+
-                "CHANGED_DATE ,"+
-                "APPROVED_DATE ,"+
-                "COMMENTS ,"+
-                "isRequired )  "+
+        String query = "insert into tbl_t_campaign_questionnaire ( "+
+                "objective_id ,"+
+                "campaign_id ,"+
+                "section_id ,"+
+                "question_id ,"+
+                "created_by ,"+
+                "changed_by ,"+
+                "approved_by ,"+
+                "status_desc ,"+
+                "created_date ,"+
+                "changed_date ,"+
+                "approved_date ,"+
+                "comments ,"+
+                "isrequired )  "+
                 "values (?,?,?,?,?,?,?,?,?,?,?,?,?) ";
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
 

@@ -22,32 +22,32 @@ public class SectionConditionRepository {
     JdbcTemplate jdbcTemplate;
 
     public List<SectionConditionDao> getByCampaignId(Integer campaignId){
-        String query = "select *  from [dbo].[TBL_T_SECTION_CONDITIONAL] where STATUS_DESC != 'DELETED' and CAMPAIGN_ID="+campaignId;
+        String query = "select *  from tbl_t_section_conditional where status_desc != 'DELETED' and campaign_id="+campaignId;
         List<SectionConditionDao> SectionConditionDaos = jdbcTemplate.query(query, new SectinConditionDaoRowMapper());
         return SectionConditionDaos;
     };
 
     public List<SectionConditionDao> getByCampaignIdAndSectionId(Integer campaignId, Integer sectionId){
-        String query = "select *  from [dbo].[TBL_T_SECTION_CONDITIONAL] where STATUS_DESC != 'DELETED' and SECTION_ID="+sectionId+" and CAMPAIGN_ID="+campaignId;
+        String query = "select *  from tbl_t_section_conditional where status_desc != 'DELETED' and section_id="+sectionId+" and campaign_id="+campaignId;
         List<SectionConditionDao> SectionConditionDaos = jdbcTemplate.query(query, new SectinConditionDaoRowMapper());
         return SectionConditionDaos;
     };
 
     public List<SectionConditionDao> deleteByCampaignId(Integer campaignId, String user){
-        String query = "update [dbo].[TBL_T_SECTION_CONDITIONAL] set STATUS_DESC = ? where CAMPAIGN_ID = ?";
+        String query = "update tbl_t_section_conditional set status_desc = ? where campaign_id = ?";
         jdbcTemplate.update(query,"DELETED",  campaignId);
         return getByCampaignId(campaignId);
     };
 
 
     public void save(int campaignId, int sectionId, int questionId, int responseId, String sectionToGo) {
-        String query = "insert into [dbo].[TBL_T_SECTION_CONDITIONAL] ("+
-        "CAMPAIGN_ID ,"+
-        "SECTION_ID ,"+
-        "QUESTION_ID ,"+
-        "RESPONSE_ID ,"+
-        "SECTION_NAME_TO_GO ,"+
-        "STATUS_DESC ) "+
+        String query = "insert into tbl_t_section_conditional ("+
+        "campaign_id ,"+
+        "section_id ,"+
+        "question_id ,"+
+        "response_id ,"+
+        "section_name_to_go ,"+
+        "status_desc ) "+
         "values (?,?,?,?,?,?)";
 
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
