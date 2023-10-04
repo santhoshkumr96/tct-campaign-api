@@ -115,7 +115,7 @@ public class SurveyController {
             if(surveyAnswerTOS.size() > 0){
                 String questionName ="  select QR.question_name from tbl_t_campaign_questionnaire CQ\n" +
                         "  join tbl_m_questions_repo QR on QR.question_id = CQ.question_id\n" +
-                        "  where CQ.campaign_id = (select campaign_id from survey_population_campaign_association where id = 470);";
+                        "  where CQ.campaign_id = (select campaign_id from survey_population_campaign_association where id = "+surveyAnswerModel.getSurveyId()+");";
                 List<String> questionId = jdbcTemplate.queryForList(questionName,String.class);
                 for(String questionNameValue : questionId){
                     Header.add(questionNameValue);
